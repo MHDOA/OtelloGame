@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h>
+#include <conio.h>
 
 void newGame(int table[8][8]);
 void PlayGame(int table[8][8], char Player[3][20], int player);
@@ -31,6 +33,8 @@ void newGame(int table[8][8]){
 }
 
 void Show(int table[8][8]){
+    system("cls");
+    
     char *top = "    1   2   3   4   5   6   7   8  ";
     printf("%s\n", top);
 
