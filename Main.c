@@ -34,26 +34,28 @@ void newGame(int table[8][8]){
 
 void Show(int table[8][8]){
     system("cls");
-    
-    char *top = "    1   2   3   4   5   6   7   8  ";
+
+    char *top = "      1       2       3       4       5       6       7       8      ";
     printf("%s\n", top);
 
     for(int i = 0; i < 8; i++){
-            printf("   --- --- --- --- --- --- --- ---\n");
-            printf("  |   |   |   |   |   |   |   |   |\n");
+            printf("   ------- ------- ------- ------- ------- ------- ------- -------\n");
+            printf("  |       |       |       |       |       |       |       |       |\n");
 
             printf("%d ", i+1);
             for(int k = 0; k < 8; k++){
-                printf("| ");
-                if(table[i][k] == 1) printf("#");
-                else if(table[i][k] == 2) printf("o");
-                else printf(" ");
+                printf("|   ");
+                //print o or # if we have nut and print " " if nothing.
+                if(table[i][k] == 1) printf("#  ");
+                else if(table[i][k] == 2) printf("o  ");
+                else printf("   ");
+                //**********
                 printf(" ");
             }
 
-            printf("|\n  |   |   |   |   |   |   |   |   |\n");
+            printf("|\n  |       |       |       |       |       |       |       |       |\n");
     }
-    printf("   --- --- --- --- --- --- --- ---\n");
+    printf("   ------- ------- ------- ------- ------- ------- ------- -------\n");
 }
 
 void PlayGame(int table[8][8], char Player[3][20], int player){
