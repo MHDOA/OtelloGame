@@ -38,7 +38,8 @@ void Show(int table[8][8])
     char *sideSquare = "|";
 
     // Clear console.
-    system("cls");
+    system("clear");
+    //system("cls") // For windows running.
 
     // Print number of column.
     printf("%7d %7d %7d %7d %7d %7d %7d %7d\n", 1, 2, 3, 4, 5, 6, 7, 8);
