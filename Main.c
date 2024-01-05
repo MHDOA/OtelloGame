@@ -1,9 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+enum conditions
+{
+    IMPOSSIBLE = -1,
+    AGAIN,
+    PASS
+};
+
 void newGame(int table[8][8]);
-void PlayGame(int table[8][8], char Player[3][20], int player);
-int Limitter(int table[8][8], int r, int c, int player);
+int PlayGame(int table[8][8], char Player[3][20], int player);
+int MovementChecker(int table[8][8], int r, int c, int player);
+int AllWays(int table[8][8], int player, int **arr);
+int isCorrectMove(int table[8][8], int r, int c, int player);
 void Show(int table[8][8]);
 
 int main()
@@ -14,8 +23,13 @@ int main()
 
     scanf("%20s %20s", Player[1], Player[2]);
 
-    newGame(table);
-    PlayGame(table, Player, 1);
+    while (PASS)
+    {
+        int player = PlayGame(table, Player, player);
+        if(player > 2) player = 1;
+
+        PlayGame(table, Player, player);
+    }
 
     return 0;
 }
@@ -38,7 +52,7 @@ void Show(int table[8][8])
     char *sideSquare = "|";
 
     // Clear console.
-    system("clear");
+    system("clear"); // For Linux running.
     // system("cls") // For windows running.
 
     // Print number of column.
@@ -83,31 +97,34 @@ void Show(int table[8][8])
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
 }
 
-void PlayGame(int table[8][8], char Player[3][20], int player)
+int PlayGame(int table[8][8], char Player[3][20], int player)
 {
     int r, c;
 
     printf("Enter your location %s: ", Player[player]);
     scanf("%d %d", &r, &c);
 
-    if (Limitter(table, r, c, player) == 1)
+    enum conditions condition = IsCorrectMove(table, r, c, player);
+
+    if ( condition == PASS)
     {
         table[r - 1][c - 1] = player;
         Show(table);
+        return player ++;
     }
 
-    else
+    else if(condition == AGAIN)
     {
         printf("try again %s\n", Player[player]);
-        PlayGame(table, Player, player);
+        return player;
     }
 
-    if (player >= 2)
-        player = 0;
-    PlayGame(table, Player, player + 1);
+    else{
+        
+    }
 }
 
-int Limitter(int table[8][8], int r, int c, int player)
+int MovementChecker(int table[8][8], int r, int c, int player)
 {
     r--;
     c--;
@@ -140,4 +157,47 @@ int Limitter(int table[8][8], int r, int c, int player)
     }
 
     return 0;
+}
+
+int IsCorrectMove(int table[8][8], int r, int c, int player)
+{
+    int **all_ways = (int **)malloc(8 * sizeof(int *));
+    for (int i = 0; i < 8; i++)
+        *(all_ways + i) = (int *)malloc(8 * sizeof(int));
+
+    enum conditions conditionPlay = AllWays(table, player, all_ways);
+    if (conditionPlay = IMPOSSIBLE)
+        return IMPOSSIBLE;
+
+    r--;
+    c--;
+
+    if (*(*(all_ways + r) + c) == 1)
+        return PASS;
+
+    else
+        return AGAIN;
+}
+
+int AllWays(int table[8][8], int player, int **arr)
+{
+    int Impossible_Play = 1;
+    for (int r = 1; r <= 8; r++)
+    {
+        for (int c = 1; c <= 8; c++)
+        {
+            if (MovementChecker(table, r, c, player) == 1)
+            {
+                Impossible_Play = 0;
+                r--;
+                c--;
+                *(*(arr + r) + c) = 1;
+            }
+        }
+    }
+
+    if (Impossible_Play == 0)
+        return IMPOSSIBLE;
+    else
+        return PASS;
 }
