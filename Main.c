@@ -12,7 +12,7 @@ void newGame(int table[8][8]);
 int PlayGame(int table[8][8], char Player[3][20], int player);
 int MovementChecker(int table[8][8], int r, int c, int player);
 int AllWays(int table[8][8], int player, int **arr);
-int isCorrectMove(int table[8][8], int r, int c, int player);
+int IsCorrectMove(int table[8][8], int r, int c, int player);
 void Show(int table[8][8]);
 
 int main()
@@ -23,12 +23,13 @@ int main()
 
     scanf("%20s %20s", Player[1], Player[2]);
 
-    while (PASS)
-    {
-        int player = PlayGame(table, Player, player);
-        if(player > 2) player = 1;
+    newGame(table);
 
-        PlayGame(table, Player, player);
+    int player = 1;
+    while (PASS)
+    {   
+        player = PlayGame(table, Player, player);
+        if(player > 2) player = 1;
     }
 
     return 0;
@@ -110,7 +111,8 @@ int PlayGame(int table[8][8], char Player[3][20], int player)
     {
         table[r - 1][c - 1] = player;
         Show(table);
-        return player ++;
+        player++;
+        return player;
     }
 
     else if(condition == AGAIN)
@@ -166,7 +168,7 @@ int IsCorrectMove(int table[8][8], int r, int c, int player)
         *(all_ways + i) = (int *)malloc(8 * sizeof(int));
 
     enum conditions conditionPlay = AllWays(table, player, all_ways);
-    if (conditionPlay = IMPOSSIBLE)
+    if (conditionPlay == IMPOSSIBLE)
         return IMPOSSIBLE;
 
     r--;
@@ -189,14 +191,12 @@ int AllWays(int table[8][8], int player, int **arr)
             if (MovementChecker(table, r, c, player) == 1)
             {
                 Impossible_Play = 0;
-                r--;
-                c--;
-                *(*(arr + r) + c) = 1;
+                *(*(arr + r - 1) + c - 1) = 1;
             }
         }
     }
 
-    if (Impossible_Play == 0)
+    if (Impossible_Play == 1)
         return IMPOSSIBLE;
     else
         return PASS;
