@@ -3,7 +3,7 @@
 
 void newGame(int table[8][8]);
 void PlayGame(int table[8][8], char Player[3][20], int player);
-int Limitter(int table[8][8], int x, int y, int player);
+int Limitter(int table[8][8], int r, int c, int player);
 void Show(int table[8][8]);
 
 int main()
@@ -39,7 +39,7 @@ void Show(int table[8][8])
 
     // Clear console.
     system("clear");
-    //system("cls") // For windows running.
+    // system("cls") // For windows running.
 
     // Print number of column.
     printf("%7d %7d %7d %7d %7d %7d %7d %7d\n", 1, 2, 3, 4, 5, 6, 7, 8);
@@ -78,29 +78,28 @@ void Show(int table[8][8])
                sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
     }
 
-     // Print '|' for in end of row.
+    // Print '|' for in end of row.
     printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
 }
 
 void PlayGame(int table[8][8], char Player[3][20], int player)
 {
-
-    int x, y;
+    int r, c;
 
     printf("Enter your location %s: ", Player[player]);
-    scanf("%d %d", &x, &y);
+    scanf("%d %d", &r, &c);
 
-    if (Limitter(table, x, y, player) == 1)
+    if (Limitter(table, r, c, player) == 1)
     {
-        if (x > 8 || y > 8)
-        {
-            printf("try again %s\n", Player[player]);
-            PlayGame(table, Player, player);
-            return;
-        }
-        table[x - 1][y - 1] = player;
+        table[r - 1][c - 1] = player;
         Show(table);
+    }
+
+    else
+    {
+        printf("try again %s\n", Player[player]);
+        PlayGame(table, Player, player);
     }
 
     if (player >= 2)
@@ -108,7 +107,37 @@ void PlayGame(int table[8][8], char Player[3][20], int player)
     PlayGame(table, Player, player + 1);
 }
 
-int Limitter(int table[8][8], int x, int y, int player)
+int Limitter(int table[8][8], int r, int c, int player)
 {
-    return 1;
+    r--;
+    c--;
+
+    // cell should be empty
+    if (table[r][c] != 0)
+        return 0;
+
+    for (int dr = -1; dr <= 1; dr++)
+    {
+        for (int dc = -1; dc <= 1; dc++)
+        {
+
+            // To skip currnt cell
+            if (dc == 0 && dr == 0)
+                continue;
+
+            int rtmp = r + dr;
+            int ctmp = c + dc;
+
+            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+            {
+                rtmp += dr;
+                ctmp += dc;
+            }
+
+            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player)
+                return 1;
+        }
+    }
+
+    return 0;
 }
