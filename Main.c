@@ -8,6 +8,8 @@ enum conditions
     PASS
 };
 
+void ConsoleClean();
+
 void newGame(int table[8][8]);
 int PlayGame(int table[8][8], char Player[3][20], int player);
 int MovementChecker(int table[8][8], int r, int c, int player);
@@ -47,15 +49,21 @@ void newGame(int table[8][8])
     Show(table);
 }
 
+void ConsoleClean(){
+    #ifdef _WIN32
+        system("cls");
+    #elif __linux__ 
+        system("clear");
+    #endif
+}
+
 void Show(int table[8][8])
 {
     // To char* to create table structure
     char *top_buttom_Square = "-------";
     char *sideSquare = "|";
 
-    // Clear console.
-    system("clear"); // For Linux running.
-    // system("cls") // For windows running.
+    ConsoleClean(); // To Clean console and overwrite next information.
 
     // Print number of column.
     printf("%7d %7d %7d %7d %7d %7d %7d %7d\n", 1, 2, 3, 4, 5, 6, 7, 8);
@@ -119,6 +127,7 @@ int PlayGame(int table[8][8], char Player[3][20], int player)
 
     else if(condition == AGAIN)
     {
+        //Show(table);
         printf("try again %s\n", Player[player]);
         return player;
     }
