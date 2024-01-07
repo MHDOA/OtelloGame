@@ -14,6 +14,7 @@ int MovementChecker(int table[8][8], int r, int c, int player);
 int AllWays(int table[8][8], int player, int **arr);
 int IsCorrectMove(int table[8][8], int r, int c, int player);
 void Show(int table[8][8]);
+void ReverseNuts(int table[8][8], int r, int c, int player);
 
 int main()
 {
@@ -110,6 +111,7 @@ int PlayGame(int table[8][8], char Player[3][20], int player)
     if (condition == PASS)
     {
         table[r - 1][c - 1] = player;
+        ReverseNuts(table, r, c, player);
         Show(table);
         player++;
         return player;
@@ -155,6 +157,7 @@ int MovementChecker(int table[8][8], int r, int c, int player)
                 rtmp += dr;
                 ctmp += dc;
             }
+
 
             if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player && flag == 1)
                 return 1;
@@ -203,4 +206,48 @@ int AllWays(int table[8][8], int player, int **arr)
         return IMPOSSIBLE;
     else
         return PASS;
+}
+
+void ReverseNuts(int table[8][8], int r, int c, int player)
+{
+    r--;
+    c--;
+
+    for (int dr = -1; dr <= 1; dr++)
+    {
+        for (int dc = -1; dc <= 1; dc++)
+        {
+            int flag = 0; // At least should be bihind an opposite nut.
+
+            // To skip currnt cell
+            if (dc == 0 && dr == 0)
+                continue;
+
+            int rtmp = r + dr;
+            int ctmp = c + dc;
+
+            
+            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+            {
+                flag = 1;
+                rtmp += dr;
+                ctmp += dc;
+            }
+
+
+            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player && flag == 1)
+            {
+                rtmp = r + dr;
+                ctmp = c + dc;
+
+            
+                while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+                {
+                    table[rtmp][ctmp] = player;
+                    rtmp += dr;
+                    ctmp += dc;
+                }
+            }
+        }
+    }
 }
