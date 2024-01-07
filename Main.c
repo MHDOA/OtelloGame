@@ -107,7 +107,7 @@ int PlayGame(int table[8][8], char Player[3][20], int player)
 
     enum conditions condition = IsCorrectMove(table, r, c, player);
 
-    if ( condition == PASS)
+    if (condition == PASS)
     {
         table[r - 1][c - 1] = player;
         Show(table);
@@ -139,6 +139,7 @@ int MovementChecker(int table[8][8], int r, int c, int player)
     {
         for (int dc = -1; dc <= 1; dc++)
         {
+            int flag = 0; // At least should be bihind an opposite nut.
 
             // To skip currnt cell
             if (dc == 0 && dr == 0)
@@ -147,13 +148,15 @@ int MovementChecker(int table[8][8], int r, int c, int player)
             int rtmp = r + dr;
             int ctmp = c + dc;
 
+            
             while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
             {
+                flag = 1;
                 rtmp += dr;
                 ctmp += dc;
             }
 
-            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player)
+            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player && flag == 1)
                 return 1;
         }
     }
