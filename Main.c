@@ -11,15 +11,17 @@ enum conditions
 void ConsoleClean();
 
 void newGame(int table[8][8]);
-int PlayGame(int table[8][8], char Player[3][20], int player);
+int PlayGame(int table[8][8], char Player[3][20], int player, int *is_endGame);
 int MovementChecker(int table[8][8], int r, int c, int player);
 int AllWays(int table[8][8], int player, int **arr);
 int IsCorrectMove(int table[8][8], int r, int c, int player);
 void Show(int table[8][8]);
 void ReverseNuts(int table[8][8], int r, int c, int player);
+void winnerFind(int table[8][8], char Player[3][20]);
 
 int main()
-{
+{   
+    int is_endGame = 0;
 
     int table[8][8] = {0};
     char Player[3][20];
@@ -31,20 +33,34 @@ int main()
     int player = 1;
     while (PASS)
     {   
-        player = PlayGame(table, Player, player);
+        player = PlayGame(table, Player, player, &is_endGame);
         if(player > 2) player = 1;
+
+        if(is_endGame >= 2)
+            break;
     }
+
+    winnerFind(table, Player);
 
     return 0;
 }
 
 void newGame(int table[8][8])
 {
-    table[3][3] = 2;
+    for(int r = 0; r < 8; r++){
+        for(int c = 0; c < 8; c++){
+            table[r][c] = 1;
+        }
+    }
+
+    table[0][6] = 2;
+    table[6][6] = 0;
+    table[7][7] = 0;
+    /*table[3][3] = 2;
     table[4][3] = 1;
 
     table[3][4] = 1;
-    table[4][4] = 2;
+    table[4][4] = 2;*/
 
     Show(table);
 }
@@ -107,14 +123,22 @@ void Show(int table[8][8])
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
 }
 
-int PlayGame(int table[8][8], char Player[3][20], int player)
+int PlayGame(int table[8][8], char Player[3][20], int player, int *is_endGame)
 {
     int r, c;
+
+    // Find impossible way to find game over situation.
+    enum conditions condition = IsCorrectMove(table, 1, 1, player); // Send just test posation to know do we have any way now or not?!
+    if(condition == IMPOSSIBLE){
+        *(is_endGame) += 1;
+        player++;
+        return player;
+    }
 
     printf("Enter your location %s: ", Player[player]);
     scanf("%d %d", &r, &c);
 
-    enum conditions condition = IsCorrectMove(table, r, c, player);
+    condition = IsCorrectMove(table, r, c, player);
 
     if (condition == PASS)
     {
@@ -122,19 +146,16 @@ int PlayGame(int table[8][8], char Player[3][20], int player)
         ReverseNuts(table, r, c, player);
         Show(table);
         player++;
-        return player;
+        *is_endGame = 0;
     }
 
     else if(condition == AGAIN)
     {
-        //Show(table);
         printf("try again %s\n", Player[player]);
-        return player;
+        *is_endGame = 0;
     }
 
-    else{
-        
-    }
+    return player;
 }
 
 int MovementChecker(int table[8][8], int r, int c, int player)
@@ -178,27 +199,31 @@ int MovementChecker(int table[8][8], int r, int c, int player)
 
 int IsCorrectMove(int table[8][8], int r, int c, int player)
 {
+    // Save all ways for player in all_way and send to AllWays to find them.
     int **all_ways = (int **)malloc(8 * sizeof(int *));
     for (int i = 0; i < 8; i++)
         *(all_ways + i) = (int *)malloc(8 * sizeof(int));
 
     enum conditions conditionPlay = AllWays(table, player, all_ways);
+
+    // Send message to know this player dosn't have any way to play now.
     if (conditionPlay == IMPOSSIBLE)
         return IMPOSSIBLE;
 
+    // Check input posation to be valid and then set it.
     r--;
     c--;
-
     if (*(*(all_ways + r) + c) == 1)
         return PASS;
 
+    // If we have any way to play but player didn't input correct posation, say try again.
     else
         return AGAIN;
 }
 
 int AllWays(int table[8][8], int player, int **arr)
 {
-    int Impossible_Play = 1;
+    int Impossible_Play = 1; // To show do we have any way or not.
     for (int r = 1; r <= 8; r++)
     {
         for (int c = 1; c <= 8; c++)
@@ -259,4 +284,21 @@ void ReverseNuts(int table[8][8], int r, int c, int player)
             }
         }
     }
+}
+
+void winnerFind(int table[8][8], char Player[3][20]){
+    int playerScore[3] = {0};
+
+    // Get sum of the score
+    for(int r = 0; r < 8; r++){
+        for(int c = 0; c < 8; c++){
+            playerScore[table[r][c]]++;
+        }
+    }
+
+    if(playerScore[1] > playerScore[2]) 
+        printf("%s", Player[1]);
+    else if(playerScore[2] > playerScore[1]) 
+        printf("%s", Player[2]);
+    else printf("Equal");
 }
