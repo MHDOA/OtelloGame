@@ -2,15 +2,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "Op.c"
+#include "OtelloFuncs.c"
 
 void ConsoleClean();
-//void TableCoppy(int target[8][8], int source[8][8]);
 
-//void UndoPlay(int table[8][8], Player Players[3], int playerNum);
 void NewGame(int table[8][8]);
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
-
 
 int main()
 {
