@@ -157,10 +157,10 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     }
 
     printf("Enter your location %s(%s): ", Players[playerNum].name, Players[playerNum].nut);
-    char in1[2], in2[2];
-    scanf("%1s %1s", in1, in2);
+    char input[3];
+    scanf("%2s", input);
 
-    if (strcmp(in1, "z\0") == 0)
+    if (strcmp(input, "z\0") == 0)
     {
         UndoPlay(table, Players, playerNum);
         Show(table);
@@ -168,8 +168,10 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 
     else
     {
-        r = atoi(in1);
-        c = atoi(in2);
+        char row[2] = {input[0], '\0'};
+        char col[2] = {input[1], '\0'};
+        r = atoi(row);
+        c = atoi(col);
 
         condition = IsCorrectMove(table, r, c, playerNum);
 
