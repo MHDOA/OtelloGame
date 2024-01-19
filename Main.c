@@ -32,6 +32,7 @@ int IsCorrectMove(int table[8][8], int r, int c, int playerNum);
 void Show(int table[8][8]);
 void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3]);
 void WinnerFinde(int table[8][8], Player Players[3]);
+int NutsCounter(int table[8][8], int playerNum);
 
 int main()
 {
@@ -141,6 +142,8 @@ void Show(int table[8][8])
     // Print '|' for in end of row.
     printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
+
+    
 }
 
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
@@ -321,23 +324,34 @@ void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3]
 
 void WinnerFinde(int table[8][8], Player Players[3])
 {
-    int playerScore[3] = {0};
+    int playerNuts[3] = {0};
 
-    // Get sum of the score
-    for (int r = 0; r < 8; r++)
+    playerNuts[1] = NutsCounter(table, 1);
+    playerNuts[2] = NutsCounter(table, 2);
+
+    if (playerNuts[1] > playerNuts[2])
+        printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
+    else if (playerNuts[2] > playerNuts[1])
+        printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
+    else
+        printf("Equal");
+}
+
+int NutsCounter(int table[8][8], int playerNum)
+{
+
+    int nutsNumber = 0;
+
+    for (int i = 0; i < 8; i++)
     {
-        for (int c = 0; c < 8; c++)
+        for (int j = 0; j < 8; j++)
         {
-            playerScore[table[r][c]]++;
+            if (table[i][j] == playerNum)
+                nutsNumber++;
         }
     }
 
-    if (playerScore[1] > playerScore[2])
-        printf("%s", Players[1].name);
-    else if (playerScore[2] > playerScore[1])
-        printf("%s", Players[2].name);
-    else
-        printf("Equal");
+    return nutsNumber;
 }
 
 void UndoPlay(int table[8][8], Player Players[3], int playerNum)
