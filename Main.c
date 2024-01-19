@@ -1,5 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+struct Player
+{
+    char *name;
+    int score;
+};
+
+typedef struct Player Player;
 
 enum conditions
 {
@@ -10,45 +19,48 @@ enum conditions
 
 void ConsoleClean();
 
-void newGame(int table[8][8]);
-int PlayGame(int table[8][8], char Player[3][20], int player, int *is_endGame);
-int MovementChecker(int table[8][8], int r, int c, int player);
-int AllWays(int table[8][8], int player, int **arr);
-int IsCorrectMove(int table[8][8], int r, int c, int player);
+void UndoPlay();
+void NewGame(int table[8][8]);
+int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
+int MovementChecker(int table[8][8], int r, int c, int playerNum);
+int AllWays(int table[8][8], int playerNum, int **arr);
+int IsCorrectMove(int table[8][8], int r, int c, int playerNum);
 void Show(int table[8][8]);
-void ReverseNuts(int table[8][8], int r, int c, int player);
-void winnerFind(int table[8][8], char Player[3][20]);
+void ReverseNuts(int table[8][8], int r, int c, int playerNum);
+void WinnerFinde(int table[8][8], Player Players[3]);
 
 int main()
-{   
+{
     int is_endGame = 0;
 
+    Player Players[3] = {Players[1].name = (char*) malloc(20 * sizeof(char)), 0,Players[2].name = (char*) malloc(20 * sizeof(char))};
+    scanf("%20s %20s", Players[1].name, Players[2].name);
+
     int table[8][8] = {0};
-    char Player[3][20];
+    NewGame(table);
 
-    scanf("%20s %20s", Player[1], Player[2]);
-
-    newGame(table);
-
-    int player = 1;
+    int playerNum = 1;
     while (PASS)
-    {   
-        player = PlayGame(table, Player, player, &is_endGame);
-        if(player > 2) player = 1;
+    {
+        playerNum = PlayGame(table, Players, playerNum, &is_endGame);
+        if (playerNum > 2)
+            playerNum = 1;
 
-        if(is_endGame >= 2)
+        if (is_endGame >= 2)
             break;
     }
 
-    winnerFind(table, Player);
+    WinnerFinde(table, Players);
 
     return 0;
 }
 
-void newGame(int table[8][8])
+void NewGame(int table[8][8])
 {
-    for(int r = 0; r < 8; r++){
-        for(int c = 0; c < 8; c++){
+    for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
             table[r][c] = 1;
         }
     }
@@ -65,12 +77,13 @@ void newGame(int table[8][8])
     Show(table);
 }
 
-void ConsoleClean(){
-    #ifdef _WIN32
-        system("cls");
-    #elif __linux__ 
-        system("clear");
-    #endif
+void ConsoleClean()
+{
+#ifdef _WIN32
+    system("cls");
+#elif __linux__
+    system("clear");
+#endif
 }
 
 void Show(int table[8][8])
@@ -123,42 +136,53 @@ void Show(int table[8][8])
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
 }
 
-int PlayGame(int table[8][8], char Player[3][20], int player, int *is_endGame)
+int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 {
     int r, c;
 
     // Find impossible way to find game over situation.
-    enum conditions condition = IsCorrectMove(table, 1, 1, player); // Send just test posation to know do we have any way now or not?!
-    if(condition == IMPOSSIBLE){
+    enum conditions condition = IsCorrectMove(table, 1, 1, playerNum); // Send just test posation to know do we have any way now or not?!
+    if (condition == IMPOSSIBLE)
+    {
         *(is_endGame) += 1;
-        player++;
-        return player;
+        playerNum++;
+        return playerNum;
     }
 
-    printf("Enter your location %s: ", Player[player]);
-    scanf("%d %d", &r, &c);
+    printf("Enter your location %s: ", Players[playerNum].name);
+    char *input = "";
+    scanf("%s", input);
 
-    condition = IsCorrectMove(table, r, c, player);
+    if (strcmp(input, "z") == 0)
+    {
+        UndoPlay();
+    }
+    else{
+        r = 2;
+        c = 2; 
+    }
+
+    condition = IsCorrectMove(table, r, c, playerNum);
 
     if (condition == PASS)
     {
-        table[r - 1][c - 1] = player;
-        ReverseNuts(table, r, c, player);
+        table[r - 1][c - 1] = playerNum;
+        ReverseNuts(table, r, c, playerNum);
         Show(table);
-        player++;
+        playerNum++;
         *is_endGame = 0;
     }
 
-    else if(condition == AGAIN)
+    else if (condition == AGAIN)
     {
-        printf("try again %s\n", Player[player]);
+        printf("try again %s\n", Players[playerNum].name);
         *is_endGame = 0;
     }
 
-    return player;
+    return playerNum;
 }
 
-int MovementChecker(int table[8][8], int r, int c, int player)
+int MovementChecker(int table[8][8], int r, int c, int playerNum)
 {
     r--;
     c--;
@@ -180,16 +204,14 @@ int MovementChecker(int table[8][8], int r, int c, int player)
             int rtmp = r + dr;
             int ctmp = c + dc;
 
-            
-            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - playerNum)
             {
                 flag = 1;
                 rtmp += dr;
                 ctmp += dc;
             }
 
-
-            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player && flag == 1)
+            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == playerNum && flag == 1)
                 return 1;
         }
     }
@@ -197,14 +219,14 @@ int MovementChecker(int table[8][8], int r, int c, int player)
     return 0;
 }
 
-int IsCorrectMove(int table[8][8], int r, int c, int player)
+int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
 {
     // Save all ways for player in all_way and send to AllWays to find them.
     int **all_ways = (int **)malloc(8 * sizeof(int *));
     for (int i = 0; i < 8; i++)
         *(all_ways + i) = (int *)malloc(8 * sizeof(int));
 
-    enum conditions conditionPlay = AllWays(table, player, all_ways);
+    enum conditions conditionPlay = AllWays(table, playerNum, all_ways);
 
     // Send message to know this player dosn't have any way to play now.
     if (conditionPlay == IMPOSSIBLE)
@@ -221,14 +243,14 @@ int IsCorrectMove(int table[8][8], int r, int c, int player)
         return AGAIN;
 }
 
-int AllWays(int table[8][8], int player, int **arr)
+int AllWays(int table[8][8], int playerNum, int **arr)
 {
     int Impossible_Play = 1; // To show do we have any way or not.
     for (int r = 1; r <= 8; r++)
     {
         for (int c = 1; c <= 8; c++)
         {
-            if (MovementChecker(table, r, c, player) == 1)
+            if (MovementChecker(table, r, c, playerNum) == 1)
             {
                 Impossible_Play = 0;
                 *(*(arr + r - 1) + c - 1) = 1;
@@ -242,7 +264,7 @@ int AllWays(int table[8][8], int player, int **arr)
         return PASS;
 }
 
-void ReverseNuts(int table[8][8], int r, int c, int player)
+void ReverseNuts(int table[8][8], int r, int c, int playerNum)
 {
     r--;
     c--;
@@ -260,24 +282,21 @@ void ReverseNuts(int table[8][8], int r, int c, int player)
             int rtmp = r + dr;
             int ctmp = c + dc;
 
-            
-            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+            while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - playerNum)
             {
                 flag = 1;
                 rtmp += dr;
                 ctmp += dc;
             }
 
-
-            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == player && flag == 1)
+            if (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == playerNum && flag == 1)
             {
                 rtmp = r + dr;
                 ctmp = c + dc;
 
-            
-                while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - player)
+                while (rtmp >= 0 && rtmp < 8 && ctmp >= 0 && ctmp < 8 && table[rtmp][ctmp] == 3 - playerNum)
                 {
-                    table[rtmp][ctmp] = player;
+                    table[rtmp][ctmp] = playerNum;
                     rtmp += dr;
                     ctmp += dc;
                 }
@@ -286,19 +305,27 @@ void ReverseNuts(int table[8][8], int r, int c, int player)
     }
 }
 
-void winnerFind(int table[8][8], char Player[3][20]){
+void WinnerFinde(int table[8][8], Player Players[3])
+{
     int playerScore[3] = {0};
 
     // Get sum of the score
-    for(int r = 0; r < 8; r++){
-        for(int c = 0; c < 8; c++){
+    for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
             playerScore[table[r][c]]++;
         }
     }
 
-    if(playerScore[1] > playerScore[2]) 
-        printf("%s", Player[1]);
-    else if(playerScore[2] > playerScore[1]) 
-        printf("%s", Player[2]);
-    else printf("Equal");
+    if (playerScore[1] > playerScore[2])
+        printf("%s", Players[1].name);
+    else if (playerScore[2] > playerScore[1])
+        printf("%s", Players[2].name);
+    else
+        printf("Equal");
+}
+
+void UndoPlay(){
+    printf("Hello!");
 }
