@@ -7,6 +7,8 @@ struct Player
     char name[21];
     char nut[1];
     int score;
+
+    int table[8][8];
 };
 
 typedef struct Player Player;
@@ -19,15 +21,16 @@ enum conditions
 };
 
 void ConsoleClean();
+void TableCoppy(int target[8][8], int source[8][8]);
 
-void UndoPlay();
+void UndoPlay(int table[8][8], Player Players[3], int playerNum);
 void NewGame(int table[8][8]);
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
 int MovementChecker(int table[8][8], int r, int c, int playerNum);
 int AllWays(int table[8][8], int playerNum, int **arr);
 int IsCorrectMove(int table[8][8], int r, int c, int playerNum);
 void Show(int table[8][8]);
-void ReverseNuts(int table[8][8], int r, int c, int playerNum);
+void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3]);
 void WinnerFinde(int table[8][8], Player Players[3]);
 
 int main()
@@ -35,10 +38,9 @@ int main()
     int is_endGame = 0;
 
     Player Players[3];
-    scanf("%20s %20s", Players[1].name, Players[2].name);
-
     Players[1].nut[0] = '#';
     Players[2].nut[0] = 'O';
+    scanf("%20s %20s", Players[1].name, Players[2].name);
 
     int table[8][8] = {0};
     NewGame(table);
@@ -146,7 +148,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     int r, c;
 
     // Find impossible way to find game over situation.
-    enum conditions condition = IsCorrectMove(table, 1, 1, playerNum); // Send just test posation to know do we have any way now or not?!
+    enum conditions condition = IsCorrectMove(table, 1, 1, playerNum); // Send test point
     if (condition == IMPOSSIBLE)
     {
         *(is_endGame) += 1;
@@ -158,30 +160,34 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     char in1[2], in2[2];
     scanf("%1s %1s", in1, in2);
 
-    if (strcmp(in1, "z") == 0)
+    if (strcmp(in1, "z\0") == 0)
     {
-        UndoPlay();
-    }
-    else{
-        r = atoi(in1);
-        c = atoi(in2); 
-    }
-
-    condition = IsCorrectMove(table, r, c, playerNum);
-
-    if (condition == PASS)
-    {
-        table[r - 1][c - 1] = playerNum;
-        ReverseNuts(table, r, c, playerNum);
+        UndoPlay(table, Players, playerNum);
         Show(table);
-        playerNum++;
-        *is_endGame = 0;
     }
 
-    else if (condition == AGAIN)
+    else
     {
-        printf("try again %s\n", Players[playerNum].name);
-        *is_endGame = 0;
+        r = atoi(in1);
+        c = atoi(in2);
+
+        condition = IsCorrectMove(table, r, c, playerNum);
+
+        if (condition == PASS)
+        {
+            TableCoppy(Players[playerNum].table, table);
+            table[r - 1][c - 1] = playerNum;
+            ReverseNuts(table, r, c, playerNum, Players);
+            Show(table);
+            playerNum++;
+            *is_endGame = 0;
+        }
+
+        else if (condition == AGAIN)
+        {
+            printf("try again %s\n", Players[playerNum].name);
+            *is_endGame = 0;
+        }
     }
 
     return playerNum;
@@ -269,7 +275,7 @@ int AllWays(int table[8][8], int playerNum, int **arr)
         return PASS;
 }
 
-void ReverseNuts(int table[8][8], int r, int c, int playerNum)
+void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3])
 {
     r--;
     c--;
@@ -304,6 +310,7 @@ void ReverseNuts(int table[8][8], int r, int c, int playerNum)
                     table[rtmp][ctmp] = playerNum;
                     rtmp += dr;
                     ctmp += dc;
+                    Players[playerNum].score++;
                 }
             }
         }
@@ -331,6 +338,19 @@ void WinnerFinde(int table[8][8], Player Players[3])
         printf("Equal");
 }
 
-void UndoPlay(){
-    printf("Hello!");
+void UndoPlay(int table[8][8], Player Players[3], int playerNum)
+{
+    TableCoppy(table, Players[playerNum].table);
+}
+
+void TableCoppy(int target[8][8], int source[8][8])
+{
+
+    for (int i = 0; i < 8; i++)
+    {
+        for (int j = 0; j < 8; j++)
+        {
+            target[i][j] = source[i][j];
+        }
+    }
 }
