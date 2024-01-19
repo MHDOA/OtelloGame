@@ -4,7 +4,8 @@
 
 struct Player
 {
-    char *name;
+    char name[21];
+    char nut[1];
     int score;
 };
 
@@ -33,8 +34,11 @@ int main()
 {
     int is_endGame = 0;
 
-    Player Players[3] = {Players[1].name = (char*) malloc(20 * sizeof(char)), 0,Players[2].name = (char*) malloc(20 * sizeof(char))};
+    Player Players[3];
     scanf("%20s %20s", Players[1].name, Players[2].name);
+
+    Players[1].nut[0] = '#';
+    Players[2].nut[0] = 'O';
 
     int table[8][8] = {0};
     NewGame(table);
@@ -57,22 +61,23 @@ int main()
 
 void NewGame(int table[8][8])
 {
-    for (int r = 0; r < 8; r++)
+    /*for (int r = 0; r < 8; r++)
     {
         for (int c = 0; c < 8; c++)
         {
             table[r][c] = 1;
         }
-    }
+    }*/
 
-    table[0][6] = 2;
+    /*table[0][6] = 2;
     table[6][6] = 0;
-    table[7][7] = 0;
-    /*table[3][3] = 2;
+    table[7][7] = 0;*/
+
+    table[3][3] = 2;
     table[4][3] = 1;
 
     table[3][4] = 1;
-    table[4][4] = 2;*/
+    table[4][4] = 2;
 
     Show(table);
 }
@@ -149,17 +154,17 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
         return playerNum;
     }
 
-    printf("Enter your location %s: ", Players[playerNum].name);
-    char *input = "";
-    scanf("%s", input);
+    printf("Enter your location %s(%s): ", Players[playerNum].name, Players[playerNum].nut);
+    char in1[2], in2[2];
+    scanf("%1s %1s", in1, in2);
 
-    if (strcmp(input, "z") == 0)
+    if (strcmp(in1, "z") == 0)
     {
         UndoPlay();
     }
     else{
-        r = 2;
-        c = 2; 
+        r = atoi(in1);
+        c = atoi(in2); 
     }
 
     condition = IsCorrectMove(table, r, c, playerNum);
