@@ -2,7 +2,9 @@ struct Player
 {
     char name[21];
     char nut[1];
+
     int score;
+    int lastScore;
 
     int table[8][8];
     int time;
@@ -87,13 +89,11 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
         printf("\n%3s %7s %7s %7s %7s %7s %7s %7s %7s", sideSquare, sideSquare, sideSquare,
                sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
 
-        
-        
-            if (i == 3)
-                printf("%-5sPlayer 1 Score: %d", "\0", Players[1].score);
-            else if (i == 4)
-                printf("%-5sPlayer 2 Score: %d", "\0", Players[2].score);
-        
+        if (i == 3)
+            printf("%-5sPlayer 1 Score: %d", "\0", Players[1].score);
+        else if (i == 4)
+            printf("%-5sPlayer 2 Score: %d", "\0", Players[2].score);
+
         printf("\n");
     }
 

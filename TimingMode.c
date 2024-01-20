@@ -6,7 +6,7 @@
 
 void ConsoleClean();
 
-typedef int (*PlayGames)(int**, Player*, int, int*);
+typedef int (*PlayGames)(int **, Player *, int, int *);
 typedef void (*ShowTable)(int **);
 
 void NewGame(int table[8][8]);
@@ -22,14 +22,18 @@ int main()
     Players[2].nut[0] = 'O';
     Players[1].nutsNumber = 2;
     Players[2].nutsNumber = 2;
+    Players[1].score = 0;
+    Players[2].score = 0;
+
     scanf("%20s %20s", Players[1].name, Players[2].name);
 
     // Get Time
     printf("Enter your time(90s to 60,000s): ");
     int timeTmp;
     scanf("%d", &timeTmp);
-    if(timeTmp > 60000) timeTmp = 60000;
-    //if(timeTmp < 90) timeTmp = 90;
+    if (timeTmp > 60000)
+        timeTmp = 60000;
+    // if(timeTmp < 90) timeTmp = 90;
 
     Players[1].time = timeTmp;
     Players[2].time = timeTmp;
@@ -54,13 +58,11 @@ int main()
             break;
     }
 
-    //Show winner
+    // Show winner
     WinnerFinde(table, Players, 1);
 
     return 0;
 }
-
-
 
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 {
@@ -82,7 +84,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     printf("Enter your location %s(%s): ", Players[playerNum].name, Players[playerNum].nut);
 
     // Start Timer
-    if(is_playAgain == 0)
+    if (is_playAgain == 0)
         time(&LastTime);
 
     char input[3];
@@ -92,13 +94,17 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     if (strcmp(input, "z\0") == 0)
     {
         UndoPlay(table, Players, playerNum);
-        Players[1].nutsNumber = (table, 1);
-        Players[2].nutsNumber = (table, 2);
+
+        Players[1].score = Players[1].lastScore;
+        Players[2].score = Players[2].lastScore;
+
+        Players[1].nutsNumber = NutsCounter(table, 1);
+        Players[2].nutsNumber = NutsCounter(table, 2);
         Show(table, Players, 1);
     }
 
     else
-    {   
+    {
         // Set row and col
         char row[2] = {input[0], '\0'};
         char col[2] = {input[1], '\0'};
@@ -112,6 +118,9 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
             // Process Nuts state
             TableCoppy(Players[playerNum].table, table);
             table[r - 1][c - 1] = playerNum;
+
+            Players[playerNum].lastScore = Players[playerNum].score;
+
             ReverseNuts(table, r, c, playerNum, Players);
 
             Players[1].nutsNumber = NutsCounter(table, 1);
