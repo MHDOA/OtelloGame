@@ -5,6 +5,7 @@ struct Player
     int score;
 
     int table[8][8];
+    int time;
 };
 
 typedef struct Player Player;
@@ -16,7 +17,98 @@ enum conditions
     PASS
 };
 
- int MovementChecker(int table[8][8], int r, int c, int playerNum)
+void ConsoleClean()
+{
+#ifdef _WIN32
+    system("cls");
+#elif __linux__
+    system("clear");
+#endif
+}
+
+void Show(int table[8][8], Player Players[3], int is_TimingMode)
+{
+    // To char* to create table structure
+    char *top_buttom_Square = "-------";
+    char *sideSquare = "|";
+
+    ConsoleClean(); // To Clean console and overwrite next information.
+
+    // Print number of column.
+    printf("%7d %7d %7d %7d %7d %7d %7d %7d\n", 1, 2, 3, 4, 5, 6, 7, 8);
+
+    for (int i = 0; i < 8; i++)
+    {
+        // Print '-----' in top of column.
+        printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
+               top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
+
+        // Print '|' in start of row.
+        printf("%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare,
+               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
+
+        // Print number of row.
+        printf("%d ", i + 1);
+
+        for (int k = 0; k < 8; k++)
+        {
+            printf("|   ");
+
+            // print o or # if we have nut and print " " if nothing.
+            if (table[i][k] == 1)
+                printf("#  ");
+            else if (table[i][k] == 2)
+                printf("o  ");
+            else
+                printf("   ");
+            // end if
+
+            printf(" ");
+        }
+
+        if (is_TimingMode)
+        {   
+            if(i == 3)
+                printf("%45sPlayer 1 time: %d", "\0", Players[1].time);
+            else if(i == 4)
+                printf("%45s Player 2 time: %d", "\0",Players[2].time);
+        }
+
+        // Print '|' for in end of row.
+        printf("%s\n%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare, sideSquare,
+               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
+    }
+
+    // Print '---' for in end of column.
+    printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
+           top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
+    
+}
+
+void NewGame(int table[8][8])
+{
+    /*for (int r = 0; r < 8; r++)
+    {
+        for (int c = 0; c < 8; c++)
+        {
+            table[r][c] = 1;
+        }
+    }*/
+
+    /*table[0][6] = 2;
+    table[6][6] = 0;
+    table[7][7] = 0;*/
+
+    table[3][3] = 2;
+    table[4][3] = 1;
+
+    table[3][4] = 1;
+    table[4][4] = 2;
+
+    // Show(table);
+}
+
+int MovementChecker(int table[8][8], int r, int c, int playerNum)
 {
     r--;
     c--;
@@ -53,7 +145,7 @@ enum conditions
     return 0;
 }
 
- int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
+int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
 {
     // Save all ways for player in all_way and send to AllWays to find them.
     int **all_ways = (int **)malloc(8 * sizeof(int *));
@@ -98,7 +190,7 @@ int AllWays(int table[8][8], int playerNum, int **arr)
         return PASS;
 }
 
- void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3])
+void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3])
 {
     r--;
     c--;
@@ -140,7 +232,7 @@ int AllWays(int table[8][8], int playerNum, int **arr)
     }
 }
 
- int NutsCounter(int table[8][8], int playerNum)
+int NutsCounter(int table[8][8], int playerNum)
 {
 
     int nutsNumber = 0;
@@ -157,24 +249,32 @@ int AllWays(int table[8][8], int playerNum, int **arr)
     return nutsNumber;
 }
 
- void WinnerFinde(int table[8][8], Player Players[3])
+void WinnerFinde(int table[8][8], Player Players[3], int is_TimingMode)
 {
     int playerNuts[3] = {0};
 
     playerNuts[1] = NutsCounter(table, 1);
     playerNuts[2] = NutsCounter(table, 2);
 
-    if (playerNuts[1] > playerNuts[2])
-        printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
-    else if (playerNuts[2] > playerNuts[1])
-        printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
+    if (is_TimingMode == 1 && (Players[1].time <= 0 || Players[2].time <= 0))
+    {
+        if (Players[1].time <= 0)
+            printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
+        else if (Players[2].time <= 0)
+            printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
+    }
     else
-        printf("Equal");
+    {
+        if (playerNuts[1] > playerNuts[2])
+            printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
+        else if (playerNuts[2] > playerNuts[1])
+            printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
+        else
+            printf("Equal");
+    }
 }
 
-
-
- void TableCoppy(int target[8][8], int source[8][8])
+void TableCoppy(int target[8][8], int source[8][8])
 {
 
     for (int i = 0; i < 8; i++)
@@ -186,8 +286,60 @@ int AllWays(int table[8][8], int playerNum, int **arr)
     }
 }
 
- void UndoPlay(int table[8][8], Player Players[3], int playerNum)
+void UndoPlay(int table[8][8], Player Players[3], int playerNum)
 {
     TableCoppy(table, Players[playerNum].table);
 }
 
+/*extern int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
+{
+    int r, c;
+
+    // Find impossible way to find game over situation.
+    enum conditions condition = IsCorrectMove(table, 1, 1, playerNum); // Send test point
+    if (condition == IMPOSSIBLE)
+    {
+        *(is_endGame) += 1;
+        playerNum++;
+        return playerNum;
+    }
+
+    printf("Enter your location %s(%s): ", Players[playerNum].name, Players[playerNum].nut);
+    char input[3];
+    scanf("%2s", input);
+
+    if (strcmp(input, "z\0") == 0)
+    {
+        UndoPlay(table, Players, playerNum);
+        Show(table);
+    }
+
+    else
+    {
+        char row[2] = {input[0], '\0'};
+        char col[2] = {input[1], '\0'};
+        r = atoi(row);
+        c = atoi(col);
+
+        condition = IsCorrectMove(table, r, c, playerNum);
+
+        if (condition == PASS)
+        {
+            TableCoppy(Players[playerNum].table, table);
+            table[r - 1][c - 1] = playerNum;
+            ReverseNuts(table, r, c, playerNum, Players);
+            Show(table);
+            playerNum++;
+            *is_endGame = 0;
+        }
+
+        else if (condition == AGAIN)
+        {
+            printf("try again %s\n", Players[playerNum].name);
+            *is_endGame = 0;
+        }
+    }
+
+    return playerNum;
+}
+*/

@@ -6,6 +6,8 @@
 
 void ConsoleClean();
 
+typedef int (*PlayGames)(int**, Player*, int, int*);
+
 void NewGame(int table[8][8]);
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
 
@@ -20,11 +22,12 @@ int main()
 
     int table[8][8] = {0};
     NewGame(table);
+    Show(table, Players, 0);
 
     int playerNum = 1;
     while (PASS)
     {
-        playerNum = PlayGame(table, Players, playerNum, &is_endGame);
+        playerNum = PlayGameNormal(table, Players, playerNum, &is_endGame);
         if (playerNum > 2)
             playerNum = 1;
 
@@ -32,93 +35,16 @@ int main()
             break;
     }
 
-    WinnerFinde(table, Players);
+    WinnerFinde(table, Players, 0);
 
     return 0;
 }
 
-void ConsoleClean()
-{
-#ifdef _WIN32
-    system("cls");
-#elif __linux__
-    system("clear");
-#endif
-}
-
-void Show(int table[8][8])
-{
-    // To char* to create table structure
-    char *top_buttom_Square = "-------";
-    char *sideSquare = "|";
-
-    ConsoleClean(); // To Clean console and overwrite next information.
-
-    // Print number of column.
-    printf("%7d %7d %7d %7d %7d %7d %7d %7d\n", 1, 2, 3, 4, 5, 6, 7, 8);
-
-    for (int i = 0; i < 8; i++)
-    {
-        // Print '-----' in top of column.
-        printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
-               top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
-
-        // Print '|' in Top of row.
-        printf("%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare,
-               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
-
-        // Print number of row.
-        printf("%d ", i + 1);
-
-        for (int k = 0; k < 8; k++)
-        {
-            printf("|   ");
-
-            // print o or # if we have nut and print " " if nothing.
-            if (table[i][k] == 1)
-                printf("#  ");
-            else if (table[i][k] == 2)
-                printf("o  ");
-            else
-                printf("   ");
-            // end if
-
-            printf(" ");
-        }
-
-        // Print '|' for in middle row.
-        printf("%s\n%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare, sideSquare,
-               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
-    }
-
-    // Print '|' for in end of row.
-    printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
-           top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
-
+int PlayGameNormal(int table[8][8], Player Players[3], int playerNum, int *is_endGame){
+    PlayGames p = &PlayGame;
     
-}
-
-void NewGame(int table[8][8])
-{
-    /*for (int r = 0; r < 8; r++)
-    {
-        for (int c = 0; c < 8; c++)
-        {
-            table[r][c] = 1;
-        }
-    }*/
-
-    /*table[0][6] = 2;
-    table[6][6] = 0;
-    table[7][7] = 0;*/
-
-    table[3][3] = 2;
-    table[4][3] = 1;
-
-    table[3][4] = 1;
-    table[4][4] = 2;
-
-    Show(table);
+    printf("Add\n");
+    p(table, Players, playerNum, is_endGame);
 }
 
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
@@ -141,7 +67,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     if (strcmp(input, "z\0") == 0)
     {
         UndoPlay(table, Players, playerNum);
-        Show(table);
+        Show(table, Players, 0);
     }
 
     else
@@ -158,7 +84,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
             TableCoppy(Players[playerNum].table, table);
             table[r - 1][c - 1] = playerNum;
             ReverseNuts(table, r, c, playerNum, Players);
-            Show(table);
+            Show(table, Players, 0);
             playerNum++;
             *is_endGame = 0;
         }
