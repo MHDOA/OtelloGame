@@ -57,7 +57,7 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
         printf("\n");
 
         // Print number of row.
-        printf("%d ", i + 1);
+        printf("%c ", i + 97);
 
         for (int k = 0; k < 8; k++)
         {
@@ -353,9 +353,9 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
     else
     {
         // Set row and col
-        char row[2] = {input[0], '\0'};
+        int row = (int) input[0] - 96;
         char col[2] = {input[1], '\0'};
-        r = atoi(row);
+        r = row;
         c = atoi(col);
 
         condition = IsCorrectMove(table, r, c, playerNum);
@@ -372,8 +372,9 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
             Players[1].nutsNumber = NutsCounter(table, 1);
             Players[2].nutsNumber = NutsCounter(table, 2);
-            
-            if(TimingMode == 1){
+
+            if (TimingMode == 1)
+            {
                 // Calculate spent time
                 time(&CurrentTime);
                 Players[playerNum].time += LastTime - CurrentTime;

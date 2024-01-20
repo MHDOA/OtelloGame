@@ -4,13 +4,6 @@
 #include <time.h>
 #include "OtelloFuncs.c"
 
-void ConsoleClean();
-
-typedef int (*PlayGames)(int **, Player *, int, int *);
-typedef void (*ShowTable)(int **);
-
-void NewGame(int table[8][8]);
-
 int main()
 {
     int is_endGame = 0;
@@ -32,7 +25,7 @@ int main()
     scanf("%d", &timeTmp);
     if (timeTmp > 60000)
         timeTmp = 60000;
-    // if(timeTmp < 90) timeTmp = 90;
+    if(timeTmp < 90) timeTmp = 90;
 
     Players[1].time = timeTmp;
     Players[2].time = timeTmp;
