@@ -6,7 +6,7 @@
 
 void ConsoleClean();
 
-typedef int (*PlayGames)(int**, Player*, int, int*);
+typedef int (*PlayGames)(int **, Player *, int, int *);
 
 void NewGame(int table[8][8]);
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
@@ -40,9 +40,10 @@ int main()
     return 0;
 }
 
-int PlayGameNormal(int table[8][8], Player Players[3], int playerNum, int *is_endGame){
+int PlayGameNormal(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
+{
     PlayGames p = &PlayGame;
-    
+
     printf("Add\n");
     p(table, Players, playerNum, is_endGame);
 }
@@ -67,6 +68,10 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
     if (strcmp(input, "z\0") == 0)
     {
         UndoPlay(table, Players, playerNum);
+
+        Players[1].nutsNumber = NutsCounter(table, 1);
+        Players[2].nutsNumber = NutsCounter(table, 2);
+
         Show(table, Players, 0);
     }
 
@@ -84,6 +89,10 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
             TableCoppy(Players[playerNum].table, table);
             table[r - 1][c - 1] = playerNum;
             ReverseNuts(table, r, c, playerNum, Players);
+
+            Players[1].nutsNumber = NutsCounter(table, 1);
+            Players[2].nutsNumber = NutsCounter(table, 2);
+
             Show(table, Players, 0);
             playerNum++;
             *is_endGame = 0;
@@ -98,4 +107,3 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 
     return playerNum;
 }
-

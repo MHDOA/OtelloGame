@@ -6,6 +6,7 @@ struct Player
 
     int table[8][8];
     int time;
+    int nutsNumber;
 };
 
 typedef struct Player Player;
@@ -44,8 +45,14 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
                top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
 
         // Print '|' in start of row.
-        printf("%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare,
+        printf("%3s %7s %7s %7s %7s %7s %7s %7s %7s", sideSquare, sideSquare,
                sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
+
+        if (i == 3)
+            printf("%-5sPlayer 1 Nuts: %d", "\0", Players[1].nutsNumber);
+        else if (i == 4)
+            printf("%-5sPlayer 2 Nuts: %d", "\0", Players[2].nutsNumber);
+        printf("\n");
 
         // Print number of row.
         printf("%d ", i + 1);
@@ -66,23 +73,33 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
             printf(" ");
         }
 
+        printf("%s", sideSquare);
+
         if (is_TimingMode)
-        {   
-            if(i == 3)
-                printf("%45sPlayer 1 time: %d", "\0", Players[1].time);
-            else if(i == 4)
-                printf("%45s Player 2 time: %d", "\0",Players[2].time);
+        {
+            if (i == 3)
+                printf("%-5sPlayer 1 Time: %ds", "\0", Players[1].time);
+            else if (i == 4)
+                printf("%-5sPlayer 2 Time: %ds", "\0", Players[2].time);
         }
 
         // Print '|' for in end of row.
-        printf("%s\n%3s %7s %7s %7s %7s %7s %7s %7s %7s\n", sideSquare, sideSquare, sideSquare,
-               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
+        printf("\n%3s %7s %7s %7s %7s %7s %7s %7s %7s", sideSquare, sideSquare, sideSquare,
+               sideSquare, sideSquare, sideSquare, sideSquare, sideSquare, sideSquare);
+
+        
+        
+            if (i == 3)
+                printf("%-5sPlayer 1 Score: %d", "\0", Players[1].score);
+            else if (i == 4)
+                printf("%-5sPlayer 2 Score: %d", "\0", Players[2].score);
+        
+        printf("\n");
     }
 
     // Print '---' for in end of column.
     printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
            top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
-    
 }
 
 void NewGame(int table[8][8])
@@ -145,6 +162,27 @@ int MovementChecker(int table[8][8], int r, int c, int playerNum)
     return 0;
 }
 
+int AllWays(int table[8][8], int playerNum, int **arr)
+{
+    int Impossible_Play = 1; // To show do we have any way or not.
+    for (int r = 1; r <= 8; r++)
+    {
+        for (int c = 1; c <= 8; c++)
+        {
+            if (MovementChecker(table, r, c, playerNum) == 1)
+            {
+                Impossible_Play = 0;
+                *(*(arr + r - 1) + c - 1) = 1;
+            }
+        }
+    }
+
+    if (Impossible_Play == 1)
+        return IMPOSSIBLE;
+    else
+        return PASS;
+}
+
 int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
 {
     // Save all ways for player in all_way and send to AllWays to find them.
@@ -167,27 +205,6 @@ int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
     // If we have any way to play but player didn't input correct posation, say try again.
     else
         return AGAIN;
-}
-
-int AllWays(int table[8][8], int playerNum, int **arr)
-{
-    int Impossible_Play = 1; // To show do we have any way or not.
-    for (int r = 1; r <= 8; r++)
-    {
-        for (int c = 1; c <= 8; c++)
-        {
-            if (MovementChecker(table, r, c, playerNum) == 1)
-            {
-                Impossible_Play = 0;
-                *(*(arr + r - 1) + c - 1) = 1;
-            }
-        }
-    }
-
-    if (Impossible_Play == 1)
-        return IMPOSSIBLE;
-    else
-        return PASS;
 }
 
 void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3])
