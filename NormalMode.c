@@ -9,7 +9,6 @@ void ConsoleClean();
 typedef int (*PlayGames)(int **, Player *, int, int *);
 
 void NewGame(int table[8][8]);
-int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame);
 
 int main()
 {
@@ -32,7 +31,7 @@ int main()
     int playerNum = 1;
     while (PASS)
     {
-        playerNum = PlayGameNormal(table, Players, playerNum, &is_endGame);
+        playerNum = PlayGame(table, Players, playerNum, &is_endGame, 0);
         if (playerNum > 2)
             playerNum = 1;
 
@@ -45,15 +44,15 @@ int main()
     return 0;
 }
 
-int PlayGameNormal(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
+/*int PlayGameNormal(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 {
     PlayGames p = &PlayGame;
 
     printf("Add\n");
     p(table, Players, playerNum, is_endGame);
 }
-
-int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
+*/
+/*int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 {
     int r, c;
 
@@ -116,3 +115,4 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame)
 
     return playerNum;
 }
+*/
