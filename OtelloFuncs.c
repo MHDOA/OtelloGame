@@ -1,14 +1,17 @@
 struct Player
 {
     char name[21];
+
     char nut[1];
+    int nutsNumber;
 
     int score;
     int lastScore;
 
     int table[8][8];
+    
     int time;
-    int nutsNumber;
+    
 };
 
 typedef struct Player Player;
@@ -56,7 +59,7 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
             printf("%-5sPlayer 2 Nuts: %d", "\0", Players[2].nutsNumber);
         printf("\n");
 
-        // Print number of row.
+        // Print alphabet of row
         printf("%c ", i + 97);
 
         for (int k = 0; k < 8; k++)
