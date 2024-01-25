@@ -1,7 +1,6 @@
 #include "OtelloFuncs.c"
 #include <stdio.h>
 
-
 int main() {
   int is_endGame = 0;
 
@@ -15,6 +14,8 @@ int main() {
   Players[2].score = 0;
   Players[1].undoUseCounter = 1;
   Players[2].undoUseCounter = 1;
+  Players[1].isUndoMode = 0;
+  Players[2].isUndoMode = 0;
 
   scanf("%20s %20s", Players[1].name, Players[2].name);
 
