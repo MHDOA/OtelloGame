@@ -399,7 +399,8 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
             TableCopy(Players[playerNum].table, table);
             table[r - 1][c - 1] = playerNum;
 
-            Players[playerNum].lastScore = Players[playerNum].score;
+            Players[1].lastScore = Players[1].score;
+            Players[2].lastScore = Players[2].score;
 
             ReverseNuts(table, r, c, playerNum, Players);
 
