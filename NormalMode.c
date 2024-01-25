@@ -1,7 +1,4 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 #include "OtelloFuncs.c"
 
 int main()
@@ -33,7 +30,7 @@ int main()
             break;
     }
 
-    WinnerFinde(table, Players, 0);
+    WinnerFind(table, Players, 0);
 
     return 0;
 }

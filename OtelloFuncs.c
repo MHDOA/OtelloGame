@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
 struct Player
 {
     char name[21];
@@ -35,7 +40,7 @@ void ConsoleClean()
 void Show(int table[8][8], Player Players[3], int is_TimingMode)
 {
     // To char* to create table structure
-    char *top_buttom_Square = "-------";
+    char *top_bottom_Square = "-------";
     char *sideSquare = "|";
 
     ConsoleClean(); // To Clean console and overwrite next information.
@@ -46,8 +51,8 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
     for (int i = 0; i < 8; i++)
     {
         // Print '-----' in top of column.
-        printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
-               top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
+        printf("%10s %s %s %s %s %s %s %s\n", top_bottom_Square, top_bottom_Square,
+               top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square);
 
         // Print '|' in start of row.
         printf("%3s %7s %7s %7s %7s %7s %7s %7s %7s", sideSquare, sideSquare,
@@ -101,8 +106,8 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode)
     }
 
     // Print '---' for in end of column.
-    printf("%10s %s %s %s %s %s %s %s\n", top_buttom_Square, top_buttom_Square,
-           top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square, top_buttom_Square);
+    printf("%10s %s %s %s %s %s %s %s\n", top_bottom_Square, top_bottom_Square,
+           top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square, top_bottom_Square);
 }
 
 void NewGame(int table[8][8])
@@ -141,9 +146,9 @@ int MovementChecker(int table[8][8], int r, int c, int playerNum)
     {
         for (int dc = -1; dc <= 1; dc++)
         {
-            int flag = 0; // At least should be bihind an opposite nut.
+            int flag = 0; // At least should be behind an opposite nut.
 
-            // To skip currnt cell
+            // To skip curent cell
             if (dc == 0 && dr == 0)
                 continue;
 
@@ -195,17 +200,17 @@ int IsCorrectMove(int table[8][8], int r, int c, int playerNum)
 
     enum conditions conditionPlay = AllWays(table, playerNum, all_ways);
 
-    // Send message to know this player dosn't have any way to play now.
+    // Send message to know this player doesn't have any way to play now.
     if (conditionPlay == IMPOSSIBLE)
         return IMPOSSIBLE;
 
-    // Check input posation to be valid and then set it.
+    // Check input postion to be valid and then set it.
     r--;
     c--;
     if (*(*(all_ways + r) + c) == 1)
         return PASS;
 
-    // If we have any way to play but player didn't input correct posation, say try again.
+    // If we have any way to play but player didn't input correct postion, say try again.
     else
         return AGAIN;
 }
@@ -219,9 +224,9 @@ void ReverseNuts(int table[8][8], int r, int c, int playerNum, Player Players[3]
     {
         for (int dc = -1; dc <= 1; dc++)
         {
-            int flag = 0; // At least should be bihind an opposite nut.
+            int flag = 0; // At least should be behind an opposite nut.
 
-            // To skip currnt cell
+            // To skip curent cell
             if (dc == 0 && dr == 0)
                 continue;
 
@@ -269,7 +274,7 @@ int NutsCounter(int table[8][8], int playerNum)
     return nutsNumber;
 }
 
-void WinnerFinde(int table[8][8], Player Players[3], int is_TimingMode)
+void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode)
 {
     int playerNuts[3] = {0};
 
@@ -294,7 +299,7 @@ void WinnerFinde(int table[8][8], Player Players[3], int is_TimingMode)
     }
 }
 
-void TableCoppy(int target[8][8], int source[8][8])
+void TableCopy(int target[8][8], int source[8][8])
 {
 
     for (int i = 0; i < 8; i++)
@@ -308,12 +313,20 @@ void TableCoppy(int target[8][8], int source[8][8])
 
 void UndoPlay(int table[8][8], Player Players[3], int playerNum)
 {
-    TableCoppy(table, Players[playerNum].table);
+    TableCopy(table, Players[playerNum].table);
+}
+
+void TryAgain(Player Players[3], int *is_endGame, int *is_playAgain, int playerNum)
+{
+    printf("try again %s\n", Players[playerNum].name);
+    *is_playAgain = 1;
+    *is_endGame = 0;
 }
 
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame, int TimingMode)
 {
     int r, c;
+    enum conditions cd = PASS;
 
     // Time didn't pause when play again.
     static int is_playAgain = 0;
@@ -341,19 +354,36 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
     scanf("%2s", input);
 
     // Undo Play
-    if (strcmp(input, "z\0") == 0)
+    if (input[0] == 'z' && TimingMode == 1)
     {
-        UndoPlay(table, Players, playerNum);
+        switch (input[1]) {
+            case '#':
+                UndoPlay(table, Players, 1);
+                playerNum = 1;
+                break;
+            
+            case 'o':
+                UndoPlay(table, Players, 2);
+                playerNum = 2;
+                break;
 
-        Players[1].score = Players[1].lastScore;
-        Players[2].score = Players[2].lastScore;
+            default:
+                TryAgain(Players, is_endGame, &is_playAgain, playerNum);
+                cd = AGAIN;
+        }
+        
+        if(cd == PASS)
+        {
+            Players[1].score = Players[1].lastScore;
+            Players[2].score = Players[2].lastScore;
 
-        Players[1].nutsNumber = NutsCounter(table, 1);
-        Players[2].nutsNumber = NutsCounter(table, 2);
-        Show(table, Players, TimingMode);
+            Players[1].nutsNumber = NutsCounter(table, 1);
+            Players[2].nutsNumber = NutsCounter(table, 2);
+            Show(table, Players, TimingMode);
+        }
     }
 
-    else
+    else if(input[0] >= 97 && input[0] <= 104 && input[1] >= 49 && input[1] <= 56)
     {
         // Set row and col
         int row = (int) input[0] - 96;
@@ -366,7 +396,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
         if (condition == PASS)
         {
             // Process Nuts state
-            TableCoppy(Players[playerNum].table, table);
+            TableCopy(Players[playerNum].table, table);
             table[r - 1][c - 1] = playerNum;
 
             Players[playerNum].lastScore = Players[playerNum].score;
@@ -392,10 +422,11 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
         else if (condition == AGAIN)
         {
-            printf("try again %s\n", Players[playerNum].name);
-            is_playAgain = 1;
-            *is_endGame = 0;
+            TryAgain(Players, is_endGame, &is_playAgain, playerNum);
         }
+    }
+    else{
+        TryAgain(Players, is_endGame, &is_playAgain, playerNum);
     }
 
     return playerNum;
