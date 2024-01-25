@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
+
+#define FineTime 30
 
 struct Player
 {
@@ -16,6 +17,9 @@ struct Player
     int table[8][8];
     
     int time;
+    int playTimeLeft;
+
+    int undoUseCounter;
     
 };
 
@@ -314,6 +318,17 @@ void TableCopy(int target[8][8], int source[8][8])
 void UndoPlay(int table[8][8], Player Players[3], int playerNum)
 {
     TableCopy(table, Players[playerNum].table);
+    if(Players[playerNum].undoUseCounter > 0){
+        Players[playerNum].undoUseCounter --;
+        Players[playerNum].time -= FineTime;
+    }
+    else{
+        Players[playerNum].time -= 2 * FineTime;
+        int addTime = Players[1].playTimeLeft + Players[2].playTimeLeft;
+
+        (playerNum == 1)? (Players[2].time += addTime) : (Players[1].time += addTime);
+
+    }
 }
 
 void TryAgain(Player Players[3], int *is_endGame, int *is_playAgain, int playerNum)
@@ -406,12 +421,14 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
             Players[1].nutsNumber = NutsCounter(table, 1);
             Players[2].nutsNumber = NutsCounter(table, 2);
-
+            
+            // Calculate spent time
             if (TimingMode == 1)
             {
-                // Calculate spent time
+                
                 time(&CurrentTime);
                 Players[playerNum].time += LastTime - CurrentTime;
+                Players[playerNum].playTimeLeft = CurrentTime - LastTime;
                 is_playAgain = 0;
             }
 

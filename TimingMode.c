@@ -13,6 +13,8 @@ int main() {
   Players[2].nutsNumber = 2;
   Players[1].score = 0;
   Players[2].score = 0;
+  Players[1].undoUseCounter = 1;
+  Players[2].undoUseCounter = 1;
 
   scanf("%20s %20s", Players[1].name, Players[2].name);
 
