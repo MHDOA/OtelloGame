@@ -1,28 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "SaveFuncs.c"
 
 #define FineTime 30
-
-struct Player {
-  char name[21];
-
-  char nut[1];
-  int nutsNumber;
-
-  int score;
-  int lastScore;
-
-  int table[8][8];
-
-  int time;
-  int playTimeLeft;
-
-  int undoUseCounter;
-  int isUndoMode;
-};
-
-typedef struct Player Player;
 
 enum conditions { IMPOSSIBLE = -1, AGAIN, PASS };
 
@@ -108,23 +89,23 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode) {
 }
 
 void NewGame(int table[8][8]) {
-  /*for (int r = 0; r < 8; r++)
+  for (int r = 0; r < 8; r++)
   {
       for (int c = 0; c < 8; c++)
       {
           table[r][c] = 1;
       }
-  }*/
+  }
 
-  /*table[0][6] = 2;
+  table[0][6] = 2;
   table[6][6] = 0;
-  table[7][7] = 0;*/
+  table[7][7] = 0;
 
-  table[3][3] = 2;
+  /*table[3][3] = 2;
   table[4][3] = 1;
 
   table[3][4] = 1;
-  table[4][4] = 2;
+  table[4][4] = 2;*/
 
   // Show(table);
 }
@@ -259,6 +240,39 @@ int NutsCounter(int table[8][8], int playerNum) {
   return nutsNumber;
 }
 
+void GameOver(){
+  printf("\n1. Show Rank\n2. Go to main menu\n");
+  printf("Enter number: ");
+
+  int input;
+  scanf("%d", &input);
+
+  switch (input) {
+    case 1:{
+      printf("\n");
+      ShowRank();
+
+      printf("\n1. Main menu\n2. Exit\n");
+      printf("Enter number: ");
+      scanf("%d", &input);
+
+      if(input == 1){
+        ConsoleClean();
+        system("gcc Intro.c -o intro.exe");
+        system("./intro.exe");
+      }
+      break;
+    }
+    case 2:
+      ConsoleClean();
+      system("gcc Intro.c -o intro.exe");
+      system("./intro.exe");
+      break;
+    default:
+      printf("Invalid input. exit!\n");
+  }
+}
+
 void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode) {
   int playerNuts[3] = {0};
 
@@ -266,11 +280,16 @@ void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode) {
   playerNuts[2] = NutsCounter(table, 2);
 
   if (is_TimingMode == 1 && (Players[1].time <= 0 || Players[2].time <= 0)) {
-    if (Players[1].time <= 0)
+    if (Players[1].time <= 0) {
       printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
-    else if (Players[2].time <= 0)
+      Players[1].score = 0;
+    } else if (Players[2].time <= 0) {
       printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
-  } else {
+      Players[2].score = 0;
+    }
+  }
+
+  else {
     if (playerNuts[1] > playerNuts[2])
       printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
     else if (playerNuts[2] > playerNuts[1])
@@ -278,6 +297,12 @@ void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode) {
     else
       printf("Equal");
   }
+
+  SetScore(Players, 1);
+  SetScore(Players, 2);
+  
+  GameOver();
+
 }
 
 void TableCopy(int target[8][8], int source[8][8]) {
@@ -343,7 +368,8 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
   scanf("%2s", input);
 
   // Undo Play
-  if (input[0] == 'z' && TimingMode == 1 && Players[1].isUndoMode == 0 && Players[2].isUndoMode == 0) {
+  if (input[0] == 'z' && TimingMode == 1 && Players[1].isUndoMode == 0 &&
+      Players[2].isUndoMode == 0) {
     switch (input[1]) {
     case '#':
       UndoPlay(table, Players, 1);
@@ -386,8 +412,6 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
       // Process Nuts state
       TableCopy(Players[playerNum].table, table);
       table[r - 1][c - 1] = playerNum;
-      
-      
 
       Players[1].lastScore = Players[1].score;
       Players[2].lastScore = Players[2].score;
@@ -405,7 +429,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
         Players[playerNum].playTimeLeft = CurrentTime - LastTime;
 
         Players[playerNum].isUndoMode = 0; // Eject from undo mode
-        is_playAgain = 0; // Pause time
+        is_playAgain = 0;                  // Pause time
       }
 
       // Show final table

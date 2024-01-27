@@ -1,38 +1,40 @@
 #include <stdio.h>
+#include <string.h>
 #include "cJSON.h"
 
-struct Player{
-    char *name;
-    int score;
+struct Player {
+  char name[21];
+
+  char nut[1];
+  int nutsNumber;
+
+  int score;
+  int lastScore;
+
+  int table[8][8];
+
+  int time;
+  int playTimeLeft;
+
+  int undoUseCounter;
+  int isUndoMode;
 };
+
+typedef struct Player Player;
 
 void JsonInitial();
 cJSON *ReadJson();
-void SetScore(struct Player Players[3], int playerNum);
-void GetScore(struct Player Players[3], int playerNum);
+void SetScore(Player Players[3], int playerNum);
+void GetScore(Player Players[3], int playerNum);
 
-int main(){
+void Ranking(Player Players[], int size);
+void ShowRank();
 
-    struct Player Players[] = {
-        {"ali", 21},
-        {"ahmad", 23},
-        {"karim", 24}
-    };
-    
-    //JsonInitial();
-    GetScore(Players, 1);
-
-    return 0;
-}
 
 void JsonInitial(){
     cJSON *json = cJSON_CreateObject();
     cJSON *tables = cJSON_CreateObject();
     cJSON *scores = cJSON_CreateObject();
-
-    cJSON_AddStringToObject(tables, "initial", "initial");
-    cJSON_AddNumberToObject(scores, "name", 0);
-    
 
     cJSON_AddItemToObject(json, "Table", tables);
     cJSON_AddItemToObject(json, "Score", scores);
@@ -43,7 +45,7 @@ void JsonInitial(){
     cJSON_Delete(json);
     fclose(fp);
 
-    printf("%s\n", str);
+    //printf("%s\n", str);
 }
 
 cJSON *ReadJson(){
@@ -113,4 +115,54 @@ void GetScore(struct Player Players[3], int playerNum){
     cJSON_Delete(json);
 
     //printf("%d", size);
+}
+
+void Ranking(Player Players[], int size){
+    for(int i = 0; i < size - 1; i++){
+        for(int j = 0; j < size - i - 1; j++){
+            if(Players[j].score > Players[j + 1].score){
+                int scoreHolder = Players[j].score;
+                Players[j].score = Players[j + 1]. score;
+                Players[j + 1].score = scoreHolder;
+
+                char nameHolder[21] = "";
+                strcpy(nameHolder, Players[j].name);
+                strcpy(Players[j].name, Players[j + 1].name);
+                strcpy(Players[j + 1].name, nameHolder);
+                
+            }
+        }
+    }
+}
+
+void ShowRank(){
+    cJSON *json = ReadJson();
+    cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
+
+    if(ScoreJson == NULL){
+        JsonInitial();
+        json = ReadJson();
+        ScoreJson = cJSON_GetObjectItem(json, "Score");
+    }
+
+    int size = cJSON_GetArraySize(ScoreJson);
+    Player Players[size];
+    
+    cJSON *item = NULL;
+    int i = 0;
+    for (item = ScoreJson->child; item != NULL; item = item->next){
+        //printf("%s: %d\n", item->string, item->valueint);
+
+        strcpy(Players[i].name, item->string);
+        Players[i].score = item->valueint;
+        i++;
+    }
+
+    Ranking(Players, size);
+
+    printf("%14s%26s\n", "**Names**", "**Scores**");
+    for(int i = size - 1; i >= 0; i--){
+        printf("%-20s%-25d\n", Players[i].name, Players[i].score);
+    }
+
 }
