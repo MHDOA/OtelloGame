@@ -30,6 +30,9 @@ void GetScore(Player Players[3], int playerNum);
 void Ranking(Player Players[], int size);
 void ShowRank();
 
+void SetTable(cJSON *item, int table[8][8], char *name);
+void SaveGame(int table[8][8], Player Players[3], int TimingMode);
+
 
 void JsonInitial(){
     cJSON *json = cJSON_CreateObject();
@@ -56,8 +59,8 @@ cJSON *ReadJson(){
         fp = fopen("data.json", "r");
     }
 
-    char buffer[1024];
-    size_t len = fread(buffer, 1, 1024, fp);
+    char buffer[20480];
+    size_t len = fread(buffer, 1, sizeof(buffer), fp);
     fclose(fp);
 
     cJSON *json = cJSON_Parse(buffer);
@@ -165,4 +168,100 @@ void ShowRank(){
         printf("%-20s%-25d\n", Players[i].name, Players[i].score);
     }
 
+}
+
+void SetTable(cJSON *item, int table[8][8], char *name){
+    cJSON *array = cJSON_CreateArray ();
+
+    for (int i = 0; i < 8; i++) {
+        cJSON *row = cJSON_CreateArray ();
+        for (int j = 0; j < 8; j++) {
+            cJSON_AddItemToArray (row, cJSON_CreateNumber (table[i][j]));
+        }
+        cJSON_AddItemToArray (array, row);
+    }
+
+    cJSON_AddItemToObject (item, name, array);
+}
+
+void SaveGame(int table[8][8], Player Players[3], int TimingMode){
+    cJSON *json = ReadJson();
+    cJSON *Table = cJSON_GetObjectItem(json, "Table");
+    
+    char SaveName[42] = "";
+    strcat(SaveName, Players[1].name);
+    strcat(SaveName, "-");
+    strcat(SaveName, Players[2].name);
+
+    if(TimingMode == 1){
+        cJSON *NewGame = cJSON_CreateObject();
+
+        SetTable(NewGame, table, "CurrentTable");
+
+        SetTable(NewGame, Players[1].table, "P1Table");
+        SetTable(NewGame, Players[2].table, "P2Table");
+
+        cJSON_AddNumberToObject(NewGame, "P1Score", Players[1].score);
+        cJSON_AddNumberToObject(NewGame, "P2Score", Players[2].score);
+
+        cJSON_AddNumberToObject(NewGame, "P1LastScore", Players[1].lastScore);
+        cJSON_AddNumberToObject(NewGame, "P2LastScore", Players[2].lastScore);
+
+        cJSON_AddNumberToObject(NewGame, "P1Time", Players[1].time);
+        cJSON_AddNumberToObject(NewGame, "P2Time", Players[2].time);
+
+        cJSON_AddNumberToObject(NewGame, "P1LeftTime", Players[1].playTimeLeft);
+        cJSON_AddNumberToObject(NewGame, "P2LeftTime", Players[2].playTimeLeft);
+
+        cJSON_AddNumberToObject(NewGame, "P1undoUse", Players[1].undoUseCounter);
+        cJSON_AddNumberToObject(NewGame, "P2undoUse", Players[2].undoUseCounter);
+
+        cJSON_AddNumberToObject(NewGame, "P1isUndoMode", Players[1].isUndoMode);
+        cJSON_AddNumberToObject(NewGame, "P2isUndoMode", Players[2].isUndoMode);
+
+        cJSON *TimeTable = cJSON_GetObjectItem(Table, "Time");
+        cJSON *Item = cJSON_GetObjectItem(TimeTable, SaveName);
+        if(Item != NULL){
+            int size = cJSON_GetArraySize(Item);
+            size++;
+
+            char c[2] = {48 + size, '\0'};
+            cJSON_AddItemToObject(Item, c, NewGame);
+        }
+        else{
+            cJSON *First = cJSON_CreateObject();
+            cJSON_AddItemToObject(First, "1", NewGame);
+            cJSON_AddItemToObject(TimeTable, SaveName, First);
+        }
+    }
+
+    else{
+        cJSON *NewGame = cJSON_CreateObject();
+
+        SetTable(NewGame, table, "CurrentTable");
+
+        cJSON_AddNumberToObject(NewGame, "P1Score", Players[1].score);
+        cJSON_AddNumberToObject(NewGame, "P2Score", Players[2].score);
+
+        cJSON *NormalTable = cJSON_GetObjectItem(Table, "Normal");
+        cJSON *Item = cJSON_GetObjectItem(NormalTable, SaveName);
+        if(Item != NULL){
+            int size = cJSON_GetArraySize(Item);
+            size++;
+
+            char c[2] = {48 + size, '\0'};
+            cJSON_AddItemToObject(Item, c, NewGame);
+        }
+        else{
+            cJSON *First = cJSON_CreateObject();
+            cJSON_AddItemToObject(First, "1", NewGame);
+            cJSON_AddItemToObject(NormalTable, SaveName, First);
+        }
+    }
+
+    FILE *fp = fopen("data.json", "w");
+    char* str = cJSON_Print(json);
+    fputs(str, fp);
+    fclose(fp);
+    printf("%s", str);
 }
