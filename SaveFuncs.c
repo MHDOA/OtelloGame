@@ -31,7 +31,7 @@ void Ranking(Player Players[], int size);
 void ShowRank();
 
 void SetTable(cJSON *item, int table[8][8], char *name);
-void SaveGame(int table[8][8], Player Players[3], int TimingMode);
+void SaveGame(int table[8][8], Player Players[3], int playerTurn,int TimingMode);
 
 
 void JsonInitial(){
@@ -186,7 +186,7 @@ void SetTable(cJSON *item, int table[8][8], char *name){
 
 void GetTable(cJSON *item, int table[8][8], char *name){
     cJSON *array = cJSON_GetObjectItem(item, name);
-    
+
     for (int i = 0; i < 8; i++) {
         cJSON *row = cJSON_GetArrayItem(array, i);
         for (int j = 0; j < 8; j++) {
@@ -198,7 +198,7 @@ void GetTable(cJSON *item, int table[8][8], char *name){
 
 
 
-void SaveGame(int table[8][8], Player Players[3], int TimingMode){
+void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode){
     cJSON *json = ReadJson();
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
     
@@ -233,6 +233,8 @@ void SaveGame(int table[8][8], Player Players[3], int TimingMode){
         cJSON_AddNumberToObject(NewGame, "P1isUndoMode", Players[1].isUndoMode);
         cJSON_AddNumberToObject(NewGame, "P2isUndoMode", Players[2].isUndoMode);
 
+        cJSON_AddNumberToObject(NewGame, "Turn", playerTurn);
+
         cJSON *TimeTable = cJSON_GetObjectItem(Table, "Time");
         cJSON *Item = cJSON_GetObjectItem(TimeTable, SaveName);
         if(Item != NULL){
@@ -257,6 +259,8 @@ void SaveGame(int table[8][8], Player Players[3], int TimingMode){
         cJSON_AddNumberToObject(NewGame, "P1Score", Players[1].score);
         cJSON_AddNumberToObject(NewGame, "P2Score", Players[2].score);
 
+        cJSON_AddNumberToObject(NewGame, "Turn", playerTurn);
+
         cJSON *NormalTable = cJSON_GetObjectItem(Table, "Normal");
         cJSON *Item = cJSON_GetObjectItem(NormalTable, SaveName);
         if(Item != NULL){
@@ -280,7 +284,7 @@ void SaveGame(int table[8][8], Player Players[3], int TimingMode){
     printf("%s", str);
 }
 
-void LoadGame(int table[8][8], Player Players[], int TimingMode){
+void LoadGame(int table[8][8], Player Players[], int *playerTurn,int TimingMode){
 
     cJSON *json = ReadJson();
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
@@ -306,8 +310,8 @@ void LoadGame(int table[8][8], Player Players[], int TimingMode){
 
             GetTable(Item, table, "CurrentTable");
 
-            SetTable(Item, Players[1].table, "P1Table");
-            SetTable(Item, Players[2].table, "P2Table");
+            GetTable(Item, Players[1].table, "P1Table");
+            GetTable(Item, Players[2].table, "P2Table");
 
             cJSON *Value = NULL;
             Value = cJSON_GetObjectItem(Item, "P1Score");
@@ -339,6 +343,9 @@ void LoadGame(int table[8][8], Player Players[], int TimingMode){
             Players[1].isUndoMode = Value->valueint;
             Value = cJSON_GetObjectItem(Item, "P2isUndoMode");
             Players[2].isUndoMode = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "Turn");
+            *playerTurn = Value->valueint;
         }
     }
     else{
@@ -357,11 +364,16 @@ void LoadGame(int table[8][8], Player Players[], int TimingMode){
 
             cJSON *Item = cJSON_GetObjectItem(Game, c);
 
+            GetTable(Item, table, "CurrentTable");
+
             cJSON *Value = NULL;
             Value = cJSON_GetObjectItem(Item, "P1Score");
             Players[1].score = Value->valueint;
             Value = cJSON_GetObjectItem(Item, "P2Score");
             Players[2].score = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "Turn");
+            *playerTurn = Value->valueint;
         }
     }
 }
