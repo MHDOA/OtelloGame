@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "cJSON.h"
 
@@ -19,6 +20,14 @@ struct Player {
   int undoUseCounter;
   int isUndoMode;
 };
+
+void ConsoleClean() {
+#ifdef _WIN32
+  system("cls");
+#elif __linux__
+  system("clear");
+#endif
+}
 
 typedef struct Player Player;
 
@@ -170,6 +179,28 @@ void ShowRank(){
 
 }
 
+void SaveNameSet(char result[],int size){
+    char RevNumber[4];
+
+    int index = 0;
+
+    while(size >= 10){
+        int n = size % 10;
+        RevNumber[index] = n + 48;
+        size /= 10;
+        index++;
+    }
+    RevNumber[index] = size + 48;
+
+    index++;
+
+    for(int i = 0; i < index; i++){
+        result[index - i - 1] = RevNumber[i];
+    }
+
+    result[index] = '\0';
+}
+
 void SetTable(cJSON *item, int table[8][8], char *name){
     cJSON *array = cJSON_CreateArray ();
 
@@ -196,7 +227,16 @@ void GetTable(cJSON *item, int table[8][8], char *name){
     }
 }
 
+void GoToMain(){
+    printf("Empty!\n");
+    printf("Go to main menu\n");
+    printf("<Press Enter>");
+    char c = getchar();
 
+    ConsoleClean();
+    system("gcc Intro.c -o intro.exe");
+    system("./intro.exe");
+}
 
 void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode){
     cJSON *json = ReadJson();
@@ -241,8 +281,9 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
             int size = cJSON_GetArraySize(Item);
             size++;
 
-            char c[2] = {48 + size, '\0'};
-            cJSON_AddItemToObject(Item, c, NewGame);
+            char name[5];
+            SaveNameSet(name, size);
+            cJSON_AddItemToObject(Item, name, NewGame);
         }
         else{
             cJSON *First = cJSON_CreateObject();
@@ -267,8 +308,9 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
             int size = cJSON_GetArraySize(Item);
             size++;
 
-            char c[2] = {48 + size, '\0'};
-            cJSON_AddItemToObject(Item, c, NewGame);
+            char name[5];
+            SaveNameSet(name, size);
+            cJSON_AddItemToObject(Item, name, NewGame);
         }
         else{
             cJSON *First = cJSON_CreateObject();
@@ -284,7 +326,7 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
     printf("%s", str);
 }
 
-void LoadGame(int table[8][8], Player Players[], int *playerTurn,int TimingMode){
+void LoadGame(int table[8][8], Player Players[], int *playerTurn, int TimingMode){
 
     cJSON *json = ReadJson();
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
@@ -298,7 +340,7 @@ void LoadGame(int table[8][8], Player Players[], int *playerTurn,int TimingMode)
         cJSON *Time = cJSON_GetObjectItem(Table, "Time");
         cJSON *Game = cJSON_GetObjectItem(Time, SaveName);
         if(Game == NULL){
-            printf("Empty");
+            GoToMain();
         }
         else{
             int size = cJSON_GetArraySize(Game);
@@ -353,12 +395,12 @@ void LoadGame(int table[8][8], Player Players[], int *playerTurn,int TimingMode)
         cJSON *Game = cJSON_GetObjectItem(Normal, SaveName);
 
         if(Game == NULL){
-            printf("Empty");
+            GoToMain();
         }
 
         else{
             int size = cJSON_GetArraySize(Game);
-            printf("Choose Load game from(%d game): ", size);
+            printf("Choose number to Load game(%d game): ", size);
             char c[3];
             scanf("%2s", c);
 
