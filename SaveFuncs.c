@@ -224,7 +224,6 @@ void GetTable(cJSON *item, int table[8][8], char *name){
 }
 
 void GoToMain(){
-    printf("\n!Empty!\n");
     printf("\nGo to main menu\n");
     printf("<Enter any char>");
     
@@ -340,7 +339,7 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
     char* str = cJSON_Print(json);
     fputs(str, fp);
     fclose(fp);
-    printf("%s", str);
+    //printf("%s", str);
 }
 
 enum conditions LoadGame(int table[8][8], Player Players[], int *playerTurn, int TimingMode){

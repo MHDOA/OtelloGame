@@ -19,7 +19,7 @@ int main() {
   Players[1].isUndoMode = 0;
   Players[2].isUndoMode = 0;
 
-  scanf("%20s %20s", Players[1].name, Players[2].name);
+  GetPlayerName(Players);
 
   // Get Time
   printf("Enter your time(90s to 60,000s): ");
@@ -58,7 +58,9 @@ int main() {
   }
 
   // Show winner
-  WinnerFind(table, Players, 1);
+  if(is_endGame != 6){
+    WinnerFind(table, Players, 1);
+  }
 
   return 0;
 }

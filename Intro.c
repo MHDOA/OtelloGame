@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 int main(){
-    
     printf("1. New game\n2. Load game\n");
     printf("Enter number: ");
     

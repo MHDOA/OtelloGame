@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include "OtelloFuncs.c"
 
 int main()
@@ -13,7 +12,7 @@ int main()
     Players[1].score = 0;
     Players[2].score = 0;
 
-    scanf("%20s %20s", Players[1].name, Players[2].name);
+    GetPlayerName(Players);
 
     int table[8][8] = {0};
     NewGame(table);
@@ -30,7 +29,10 @@ int main()
             break;
     }
 
-    WinnerFind(table, Players, 0);
+    // Show winner
+    if(is_endGame != 6){
+      WinnerFind(table, Players, 0);
+    }
 
     return 0;
 }

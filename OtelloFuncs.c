@@ -366,7 +366,8 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
     if(in[0] == 'Y' || in[0] == 'y'){
       SaveGame(table, Players, playerNum, TimingMode);
-      *is_endGame = 3;
+      *is_endGame = 6;
+      GoToMain();
     }
     else{
       TryAgain(Players, is_endGame, &is_playAgain, playerNum);
@@ -456,4 +457,12 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
   }
 
   return playerNum;
+}
+
+void GetPlayerName(Player Players[3]){
+  printf("Player one name(black-#): ");
+  scanf("%20s", Players[1].name);
+
+  printf("Player tow name(white-O): ");
+  scanf("%20s", Players[2].name);
 }
