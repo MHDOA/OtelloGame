@@ -242,7 +242,7 @@ void GoToMain(){
     scanf("%1s", input);
 
     ConsoleClean();
-    system("gcc Intro.c -o intro.exe");
+    system("gcc cJSON.c Intro.c -o intro.exe -lm");
     system("./intro.exe");
 }
 

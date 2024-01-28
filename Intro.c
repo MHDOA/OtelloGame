@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "SaveFuncs.c"
 
 int main(){
 
     // Game Start
-    printf("1. New game\n2. Load game\n");
+    printf("1. New game\n2. Load game\n3. Show Rank\n");
     printf("Enter number: ");
     
     int n;
@@ -59,6 +60,11 @@ int main(){
         else{
             printf("Invalid Input. exit!\n");
         }
+    }
+
+    // Show Rank
+    else if(n == 3){
+        ShowRank();
     }
 
     // Invalid Input
