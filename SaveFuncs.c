@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cJSON.h"
+#include "Crypt.c"
 
 struct Player {
   char name[21];
@@ -33,6 +34,14 @@ typedef struct Player Player;
 
 enum conditions { IMPOSSIBLE = -1, AGAIN, PASS };
 
+void SaveJson(char *str_json){
+    FILE *fp = fopen("data.json", "w");
+
+    char cipher[strlen(str_json)];
+    EncryptMessage(str_json, cipher);
+    fputs(cipher, fp);
+    fclose(fp);
+}
 
 void JsonInitial(){
     cJSON *json = cJSON_CreateObject();
@@ -47,13 +56,11 @@ void JsonInitial(){
     cJSON_AddItemToObject(json, "Table", tables);
     cJSON_AddItemToObject(json, "Score", scores);
 
-    FILE *fp = fopen("data.json", "w");
     char *str = cJSON_Print(json);
-    fputs(str, fp);
+    SaveJson(str);
     cJSON_Delete(json);
-    fclose(fp);
 
-    //printf("%s\n", str);
+    printf("%s\n", str);
 }
 
 cJSON *ReadJson(){
@@ -64,17 +71,26 @@ cJSON *ReadJson(){
         fp = fopen("data.json", "r");
     }
 
-    char buffer[20480];
+    char buffer[40960];
     size_t len = fread(buffer, 1, sizeof(buffer), fp);
     fclose(fp);
 
-    cJSON *json = cJSON_Parse(buffer);
+    char decrypted[len];
+
+    DecryptCipher(buffer, decrypted);
+    printf("%s\n", decrypted);
+
+    cJSON *json = cJSON_Parse(decrypted);
 
     return json;
 }
 
 void SetScore(struct Player Players[3], int playerNum){
     cJSON *json = ReadJson();
+     if(json == NULL){
+        JsonInitial();
+        json = ReadJson();
+    }
 
     cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
     if(ScoreJson == NULL){
@@ -93,10 +109,8 @@ void SetScore(struct Player Players[3], int playerNum){
         cJSON_AddNumberToObject(ScoreJson, Players[playerNum].name, Players[playerNum].score);
     }
 
-    FILE *fp = fopen("data.json", "w");
     char *str = cJSON_Print(json);
-    fputs(str, fp);
-    fclose(fp);
+    SaveJson(str);
     cJSON_Delete(json);
 
     //printf("%s", str);
@@ -105,8 +119,12 @@ void SetScore(struct Player Players[3], int playerNum){
 
 void GetScore(struct Player Players[3], int playerNum){
     cJSON *json = ReadJson();
-    cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
+    if(json == NULL){
+        JsonInitial();
+        json = ReadJson();
+    }
 
+    cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
     if(ScoreJson == NULL){
         JsonInitial();
         json = ReadJson();
@@ -237,6 +255,10 @@ void GoToMain(){
 
 void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode){
     cJSON *json = ReadJson();
+    if(json == NULL){
+        JsonInitial();
+        json = ReadJson();
+    }
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
     if(Table == NULL){
         JsonInitial();
@@ -335,16 +357,18 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
         }
     }
 
-    FILE *fp = fopen("data.json", "w");
     char* str = cJSON_Print(json);
-    fputs(str, fp);
-    fclose(fp);
+    SaveJson(str);
     //printf("%s", str);
 }
 
 enum conditions LoadGame(int table[8][8], Player Players[], int *playerTurn, int TimingMode){
 
     cJSON *json = ReadJson();
+     if(json == NULL){
+        JsonInitial();
+        json = ReadJson();
+    }
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
     if(Table == NULL){
         JsonInitial();
@@ -368,7 +392,6 @@ enum conditions LoadGame(int table[8][8], Player Players[], int *playerTurn, int
 
         cJSON *Game = cJSON_GetObjectItem(Time, SaveName);
         if(Game == NULL){
-            //GoToMain();
             return IMPOSSIBLE;
         }
         else{
@@ -433,7 +456,6 @@ enum conditions LoadGame(int table[8][8], Player Players[], int *playerTurn, int
         cJSON *Game = cJSON_GetObjectItem(Normal, SaveName);
 
         if(Game == NULL){
-            //GoToMain();
             return IMPOSSIBLE;
         }
 
