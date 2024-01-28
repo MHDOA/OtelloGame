@@ -13,23 +13,28 @@ int main() {
   int table[8][8] = {0};
 
   int playerNum = 1;
-  LoadGame(table, Players, &playerNum, 0);
+  enum conditions cond = LoadGame(table, Players, &playerNum, 0);
 
-  Players[1].nutsNumber = NutsCounter(table, 1);
-  Players[2].nutsNumber = NutsCounter(table, 2);
+  if(cond == PASS){
+    Players[1].nutsNumber = NutsCounter(table, 1);
+    Players[2].nutsNumber = NutsCounter(table, 2);
 
-  Show(table, Players, 0);
+    Show(table, Players, 0);
 
-  while (PASS) {
-    playerNum = PlayGame(table, Players, playerNum, &is_endGame, 0);
-    if (playerNum > 2)
-      playerNum = 1;
+    while (PASS) {
+        playerNum = PlayGame(table, Players, playerNum, &is_endGame, 0);
+        if(playerNum > 2)
+            playerNum = 1;
 
-    if (is_endGame >= 2)
-      break;
+        if(is_endGame >= 2)
+            break;
+    }
+
+    WinnerFind(table, Players, 0);
   }
-
-  WinnerFind(table, Players, 0);
+  else{
+    GoToMain();
+  }
 
   return 0;
 }

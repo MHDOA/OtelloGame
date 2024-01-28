@@ -6,10 +6,6 @@
 
 #define FineTime 30
 
-enum conditions { IMPOSSIBLE = -1, AGAIN, PASS };
-
-
-
 void Show(int table[8][8], Player Players[3], int TimingMode) {
   // To char* to create table structure
   char *top_bottom_Square = "-------";
