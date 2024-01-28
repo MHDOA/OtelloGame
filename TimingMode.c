@@ -12,6 +12,8 @@ int main() {
   Players[2].nutsNumber = 2;
   Players[1].score = 0;
   Players[2].score = 0;
+  Players[1].lastScore = 0;
+  Players[2].lastScore = 1;
   Players[1].undoUseCounter = 1;
   Players[2].undoUseCounter = 1;
   Players[1].isUndoMode = 0;

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "SaveFuncs.c"
 
@@ -7,15 +8,9 @@
 
 enum conditions { IMPOSSIBLE = -1, AGAIN, PASS };
 
-void ConsoleClean() {
-#ifdef _WIN32
-  system("cls");
-#elif __linux__
-  system("clear");
-#endif
-}
 
-void Show(int table[8][8], Player Players[3], int is_TimingMode) {
+
+void Show(int table[8][8], Player Players[3], int TimingMode) {
   // To char* to create table structure
   char *top_bottom_Square = "-------";
   char *sideSquare = "|";
@@ -62,7 +57,7 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode) {
 
     printf("%s", sideSquare);
 
-    if (is_TimingMode) {
+    if (TimingMode) {
       if (i == 3)
         printf("%-5sPlayer 1 Time: %ds", "\0", Players[1].time);
       else if (i == 4)
@@ -89,7 +84,7 @@ void Show(int table[8][8], Player Players[3], int is_TimingMode) {
 }
 
 void NewGame(int table[8][8]) {
-  for (int r = 0; r < 8; r++)
+  /*for (int r = 0; r < 8; r++)
   {
       for (int c = 0; c < 8; c++)
       {
@@ -99,13 +94,13 @@ void NewGame(int table[8][8]) {
 
   table[0][6] = 2;
   table[6][6] = 0;
-  table[7][7] = 0;
+  table[7][7] = 0;*/
 
-  /*table[3][3] = 2;
+  table[3][3] = 2;
   table[4][3] = 1;
 
   table[3][4] = 1;
-  table[4][4] = 2;*/
+  table[4][4] = 2;
 
   // Show(table);
 }
@@ -367,8 +362,23 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
   char input[3];
   scanf("%2s", input);
 
+  // Save Game
+  if(strcmp(input, "sg") == 0){
+    printf("Save game select, Next player do you want to save game?(Y/N)\n");
+    char in[2];
+    scanf("%s", in);
+
+    if(in[0] == 'Y' || in[0] == 'y'){
+      SaveGame(table, Players, playerNum, TimingMode);
+      *is_endGame = 3;
+    }
+    else{
+      TryAgain(Players, is_endGame, &is_playAgain, playerNum);
+    }
+  }
+
   // Undo Play
-  if (input[0] == 'z' && TimingMode == 1 && Players[1].isUndoMode == 0 &&
+  else if(input[0] == 'z' && TimingMode == 1 && Players[1].isUndoMode == 0 &&
       Players[2].isUndoMode == 0) {
     switch (input[1]) {
     case '#':
@@ -398,6 +408,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
     }
   }
 
+  // Continue play
   else if (input[0] >= 97 && input[0] <= 104 && input[1] >= 49 &&
            input[1] <= 56) {
     // Set row and col
