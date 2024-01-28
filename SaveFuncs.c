@@ -184,6 +184,20 @@ void SetTable(cJSON *item, int table[8][8], char *name){
     cJSON_AddItemToObject (item, name, array);
 }
 
+void GetTable(cJSON *item, int table[8][8], char *name){
+    cJSON *array = cJSON_GetObjectItem(item, name);
+    
+    for (int i = 0; i < 8; i++) {
+        cJSON *row = cJSON_GetArrayItem(array, i);
+        for (int j = 0; j < 8; j++) {
+            cJSON *col = cJSON_GetArrayItem(row, j);
+            table[i][j] = col->valueint;
+        }
+    }
+}
+
+
+
 void SaveGame(int table[8][8], Player Players[3], int TimingMode){
     cJSON *json = ReadJson();
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
@@ -264,4 +278,90 @@ void SaveGame(int table[8][8], Player Players[3], int TimingMode){
     fputs(str, fp);
     fclose(fp);
     printf("%s", str);
+}
+
+void LoadGame(int table[8][8], Player Players[], int TimingMode){
+
+    cJSON *json = ReadJson();
+    cJSON *Table = cJSON_GetObjectItem(json, "Table");
+
+    char SaveName[42] = "";
+    strcat(SaveName, Players[1].name);
+    strcat(SaveName, "-");
+    strcat(SaveName, Players[2].name);
+
+    if(TimingMode == 1){
+        cJSON *Time = cJSON_GetObjectItem(Table, "Time");
+        cJSON *Game = cJSON_GetObjectItem(Time, SaveName);
+        if(Game == NULL){
+            printf("Empty");
+        }
+        else{
+            int size = cJSON_GetArraySize(Game);
+            printf("Choose Load game from(%d game): ", size);
+            char c[3];
+            scanf("%2s", c);
+
+            cJSON *Item = cJSON_GetObjectItem(Game, c);
+
+            GetTable(Item, table, "CurrentTable");
+
+            SetTable(Item, Players[1].table, "P1Table");
+            SetTable(Item, Players[2].table, "P2Table");
+
+            cJSON *Value = NULL;
+            Value = cJSON_GetObjectItem(Item, "P1Score");
+            Players[1].score = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2Score");
+            Players[2].score = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "P1LastScore");
+            Players[1].lastScore = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2LastScore");
+            Players[2].lastScore = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "P1Time");
+            Players[1].time = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2Time");
+            Players[2].time = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "P1LeftTime");
+            Players[1].playTimeLeft = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2LeftTime");
+            Players[2].playTimeLeft = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "P1undoUse");
+            Players[1].undoUseCounter = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2undoUse");
+            Players[2].undoUseCounter = Value->valueint;
+
+            Value = cJSON_GetObjectItem(Item, "P1isUndoMode");
+            Players[1].isUndoMode = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2isUndoMode");
+            Players[2].isUndoMode = Value->valueint;
+        }
+    }
+    else{
+        cJSON *Normal = cJSON_GetObjectItem(Table, "Normal");
+        cJSON *Game = cJSON_GetObjectItem(Normal, SaveName);
+
+        if(Game == NULL){
+            printf("Empty");
+        }
+
+        else{
+            int size = cJSON_GetArraySize(Game);
+            printf("Choose Load game from(%d game): ", size);
+            char c[3];
+            scanf("%2s", c);
+
+            cJSON *Item = cJSON_GetObjectItem(Game, c);
+
+            cJSON *Value = NULL;
+            Value = cJSON_GetObjectItem(Item, "P1Score");
+            Players[1].score = Value->valueint;
+            Value = cJSON_GetObjectItem(Item, "P2Score");
+            Players[2].score = Value->valueint;
+        }
+    }
 }
