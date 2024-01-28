@@ -60,25 +60,25 @@ void JsonInitial(){
     SaveJson(str);
     cJSON_Delete(json);
 
-    printf("%s\n", str);
+    //printf("%s\n", str);
 }
 
 cJSON *ReadJson(){
-
+    
     FILE *fp = fopen("data.json", "r");
     if(fp == NULL){
         JsonInitial();
         fp = fopen("data.json", "r");
     }
-
+    
     char buffer[40960];
     size_t len = fread(buffer, 1, sizeof(buffer), fp);
     fclose(fp);
 
-    char decrypted[len];
+    printf("%s", buffer);
 
+    char decrypted[40960];
     DecryptCipher(buffer, decrypted);
-    printf("%s\n", decrypted);
 
     cJSON *json = cJSON_Parse(decrypted);
 
@@ -112,9 +112,6 @@ void SetScore(struct Player Players[3], int playerNum){
     char *str = cJSON_Print(json);
     SaveJson(str);
     cJSON_Delete(json);
-
-    //printf("%s", str);
-
 }
 
 void GetScore(struct Player Players[3], int playerNum){
@@ -131,16 +128,12 @@ void GetScore(struct Player Players[3], int playerNum){
         ScoreJson = cJSON_GetObjectItem(json, "Score");
     }
 
-    //int size = cJSON_GetArraySize(ScoreJson);
-
     cJSON *playerScore = cJSON_GetObjectItem(ScoreJson, Players[playerNum].name);
     int score;
     if(playerScore != NULL)
         score = playerScore -> valueint;
 
     cJSON_Delete(json);
-
-    //printf("%d", size);
 }
 
 void Ranking(Player Players[], int size){
@@ -259,13 +252,14 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
         JsonInitial();
         json = ReadJson();
     }
+
     cJSON *Table = cJSON_GetObjectItem(json, "Table");
     if(Table == NULL){
         JsonInitial();
         json = ReadJson();
         Table = cJSON_GetObjectItem(json, "Table");
     }
-    
+
     char SaveName[42] = "";
     strcat(SaveName, Players[1].name);
     strcat(SaveName, "-");
@@ -359,6 +353,7 @@ void SaveGame(int table[8][8], Player Players[3], int playerTurn, int TimingMode
 
     char* str = cJSON_Print(json);
     SaveJson(str);
+    cJSON_Delete(json);
     //printf("%s", str);
 }
 

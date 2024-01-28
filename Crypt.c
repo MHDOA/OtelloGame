@@ -19,7 +19,9 @@ void EncryptMessage(char* msg, char* cipher) {
 }
 
 void DecryptCipher(char* cipher, char* msg) {
+    
     for (int i = 0; i < strlen(cipher); i++) {
+
         if (!isspace(cipher[i]) && cipher[i] != '\0') {
             msg[i] = (char)(((a_inv * ((cipher[i] - b))) % 128));
         } 
