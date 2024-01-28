@@ -75,12 +75,12 @@ cJSON *ReadJson(){
     size_t len = fread(buffer, 1, sizeof(buffer), fp);
     fclose(fp);
 
-    printf("%s", buffer);
-
     char decrypted[40960];
     DecryptCipher(buffer, decrypted);
 
     cJSON *json = cJSON_Parse(decrypted);
+
+    //printf("%s", decrypted); // Run this code to See Decrypt json file in console
 
     return json;
 }
