@@ -12,10 +12,13 @@ int main() {
 
   int table[8][8] = {0};
 
+  // Get Table and Players property from json file.
   int playerNum = 1;
   enum conditions cond = LoadGame(table, Players, &playerNum,1);
 
 if(cond == PASS){
+
+    // Get Players nuts to show
     Players[1].nutsNumber = NutsCounter(table, 1);
     Players[2].nutsNumber = NutsCounter(table, 2);
 
@@ -34,10 +37,12 @@ if(cond == PASS){
     }
 
       // Show winner
-      if(is_endGame != 6){
+      if(is_endGame != 6){ // If equal to 6 mean eject by saving.
         WinnerFind(table, Players, 1);
       }  
 }
+
+// Game to load not found!
 else{
   printf("\n!Empty!\n");
   GoToMain();

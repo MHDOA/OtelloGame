@@ -58,7 +58,7 @@ int main() {
   }
 
   // Show winner
-  if(is_endGame != 6){
+  if(is_endGame != 6){ // If equal to 6 mean eject by saving.
     WinnerFind(table, Players, 1);
   }
 
