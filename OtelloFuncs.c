@@ -138,11 +138,12 @@ int MovementChecker(int table[8][8], int r, int c, int playerNum) {
 
 int AllWays(int table[8][8], int playerNum, int **arr) {
   int Impossible_Play = 1; // To show do we have any way or not.
+
   for (int r = 1; r <= 8; r++) {
     for (int c = 1; c <= 8; c++) {
       if (MovementChecker(table, r, c, playerNum) == 1) {
         Impossible_Play = 0;
-        *(*(arr + r - 1) + c - 1) = 1;
+        *(*(arr + r - 1) + c - 1) = 1; // Add Possible way.
       }
     }
   }
@@ -239,10 +240,12 @@ void GameOver(){
   scanf("%d", &input);
 
   switch (input) {
+    // Show Rank
     case 1:{
       printf("\n");
       ShowRank();
 
+      // Show menu option after show rank.
       printf("\n1. Main menu\n2. Exit\n");
       printf("Enter number: ");
       scanf("%d", &input);
@@ -254,6 +257,8 @@ void GameOver(){
       }
       break;
     }
+
+    // Go to Menu
     case 2:
       ConsoleClean();
       system("gcc Intro.c -o intro.exe");
@@ -265,21 +270,24 @@ void GameOver(){
 }
 
 void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode) {
-  int playerNuts[3] = {0};
+  int playerNuts[3] = {0}; //Initial player nuts
 
   playerNuts[1] = NutsCounter(table, 1);
   playerNuts[2] = NutsCounter(table, 2);
 
+  // If end game for time
   if (is_TimingMode == 1 && (Players[1].time <= 0 || Players[2].time <= 0)) {
     if (Players[1].time <= 0) {
       printf("%s Win, number of nuts: %d", Players[2].name, playerNuts[2]);
       Players[1].score = 0;
+
     } else if (Players[2].time <= 0) {
       printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
       Players[2].score = 0;
     }
   }
 
+  // If end game for impossible way
   else {
     if (playerNuts[1] > playerNuts[2])
       printf("%s Win, number of nuts: %d", Players[1].name, playerNuts[1]);
@@ -289,6 +297,7 @@ void WinnerFind(int table[8][8], Player Players[3], int is_TimingMode) {
       printf("Equal");
   }
 
+  // Set players scores
   SetScore(Players, 1);
   SetScore(Players, 2);
   
@@ -306,23 +315,30 @@ void TableCopy(int target[8][8], int source[8][8]) {
 }
 
 void UndoPlay(int table[8][8], Player Players[3], int playerNum) {
-  TableCopy(table, Players[playerNum].table);
+  TableCopy(table, Players[playerNum].table); // Convert table to previous
+
+  // FineTime for first undo
   if (Players[playerNum].undoUseCounter > 0) {
     Players[playerNum].undoUseCounter--;
     Players[playerNum].time -= FineTime;
-  } else {
+
+  } 
+  
+  // Fine time for after one use
+  else {
     Players[playerNum].time -= 2 * FineTime;
     int addTime = Players[1].playTimeLeft + Players[2].playTimeLeft;
 
     (playerNum == 1) ? (Players[2].time += addTime)
-                     : (Players[1].time += addTime);
+                     : (Players[1].time += addTime); // Add total time to next player
   }
 }
 
 void TryAgain(Player Players[3], int *is_endGame, int *is_playAgain,
               int playerNum) {
+
   printf("try again %s\n", Players[playerNum].name);
-  *is_playAgain = 1;
+  *is_playAgain = 1; // To don't stop timer
   *is_endGame = 0;
 }
 
@@ -366,17 +382,20 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
     if(in[0] == 'Y' || in[0] == 'y'){
       SaveGame(table, Players, playerNum, TimingMode);
-      *is_endGame = 6;
+
+      *is_endGame = 6; // Say specific situation for breaking
+
       GoToMain();
     }
     else{
-      TryAgain(Players, is_endGame, &is_playAgain, playerNum);
+      TryAgain(Players, is_endGame, &is_playAgain, playerNum); // Another player dissent to save game
     }
   }
 
   // Undo Play
   else if(input[0] == 'z' && TimingMode == 1 && Players[1].isUndoMode == 0 &&
       Players[2].isUndoMode == 0) {
+
     switch (input[1]) {
     case '#':
       UndoPlay(table, Players, 1);
@@ -391,12 +410,13 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
       break;
 
     default:
-      TryAgain(Players, is_endGame, &is_playAgain, playerNum);
+      TryAgain(Players, is_endGame, &is_playAgain, playerNum); // Invalid Input
       cd = AGAIN;
     }
 
+    // Do undo
     if (cd == PASS) {
-      Players[1].score = Players[1].lastScore;
+      Players[1].score = Players[1].lastScore; 
       Players[2].score = Players[2].lastScore;
 
       Players[1].nutsNumber = NutsCounter(table, 1);
@@ -434,7 +454,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
 
         time(&CurrentTime);
         Players[playerNum].time += LastTime - CurrentTime;
-        Players[playerNum].playTimeLeft = CurrentTime - LastTime;
+        Players[playerNum].playTimeLeft = CurrentTime - LastTime; // To use in undo fine time
 
         Players[playerNum].isUndoMode = 0; // Eject from undo mode
         is_playAgain = 0;                  // Pause time
@@ -446,6 +466,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
       *is_endGame = 0;
     }
 
+    // Incorrect input
     else if (condition == AGAIN) {
       TryAgain(Players, is_endGame, &is_playAgain, playerNum);
     }
@@ -459,6 +480,7 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
   return playerNum;
 }
 
+// Get Name in start of games
 void GetPlayerName(Player Players[3]){
   printf("Player one name(black-#): ");
   scanf("%20s", Players[1].name);
