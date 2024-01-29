@@ -1,9 +1,7 @@
 name: Download and compile from Github Action
 
 on:
-  push:
-    tags:
-    - '*.*.*'
+  [push]
     
 jobs:
   download-compile:
@@ -12,7 +10,7 @@ jobs:
     
       # Downloads the source code of your repository as a ZIP archive
       - name: Checkout code
-        uses: actions/download-artifact@main
+        uses: actions/download-artifact@master
         with:
           name: executable_file
           path: ./executable_file
@@ -27,7 +25,7 @@ jobs:
       
       # Uploads the compiled file as an artifact for further use in other jobs or workflows
       - name: Publish Artifact
-        uses: actions/upload-artifact@main
+        uses: actions/upload-artifact@master
         with:
           name: executable_file
           path: ./intro.exe
