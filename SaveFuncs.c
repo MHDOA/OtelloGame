@@ -188,9 +188,13 @@ void ShowRank(){
 
     // Read json file
     cJSON *json = ReadJson();
-    cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
+    if(json == NULL){
+        JsonInitial();
+        json = ReadJson();
+    }
 
     // Get Score property
+    cJSON *ScoreJson = cJSON_GetObjectItem(json, "Score");
     if(ScoreJson == NULL){
         JsonInitial();
         json = ReadJson();
