@@ -347,6 +347,8 @@ void ComputerPlay(int table[8][8], Player Players[3], int *rBest, int *cBest){
   *cBest = 0;
   int maxNut = 0;
 
+  int score = Players[1].score;
+
   for(int i = 0; i < 8; i++){
     for(int j = 0; j < 8; j++){
 
@@ -370,6 +372,7 @@ void ComputerPlay(int table[8][8], Player Players[3], int *rBest, int *cBest){
     }
   }
 }
+  Players[1].score = score;
 }
 
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
