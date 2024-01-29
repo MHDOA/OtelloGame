@@ -68,6 +68,7 @@ void JsonInitial(){
     //printf("%s\n", str);
 }
 
+// Comment a code, Show Decrypt json
 cJSON *ReadJson(){
     
     FILE *fp = fopen("data.json", "r"); // Read Encrypted json file

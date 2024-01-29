@@ -26,7 +26,7 @@ int main() {
     Show(table, Players, 0);
 
     while (PASS) {
-        playerNum = PlayGame(table, Players, playerNum, &is_endGame, 0);
+        playerNum = PlayGame(table, Players, playerNum, &is_endGame, 0, 0);
 
         // Player Turn just be 1 or 2.
         if(playerNum > 2)

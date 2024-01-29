@@ -46,7 +46,7 @@ int main() {
   // Start game
   int playerNum = 1;
   while (PASS) {
-    playerNum = PlayGame(table, Players, playerNum, &is_endGame, 1);
+    playerNum = PlayGame(table, Players, playerNum, &is_endGame, 1, 0);
 
     // Player number just 1 or 2.
     if (playerNum > 2)

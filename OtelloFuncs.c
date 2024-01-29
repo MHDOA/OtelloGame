@@ -342,8 +342,38 @@ void TryAgain(Player Players[3], int *is_endGame, int *is_playAgain,
   *is_endGame = 0;
 }
 
+void ComputerPlay(int table[8][8], Player Players[3], int *rBest, int *cBest){  
+  *rBest = 0;
+  *cBest = 0;
+  int maxNut = 0;
+
+  for(int i = 0; i < 8; i++){
+    for(int j = 0; j < 8; j++){
+
+      int tableTmp[8][8];
+      TableCopy(tableTmp, table);
+
+      enum conditions cnd = IsCorrectMove(tableTmp, i + 1, j + 1, 1);
+      if (cnd == PASS) {
+      // Process Nuts state
+      tableTmp[i][j] = 1;
+
+      ReverseNuts(tableTmp, i + 1, j + 1, 1, Players);
+
+      int nuts = NutsCounter(tableTmp, 1);
+      if(nuts > maxNut){
+        *rBest = i + 1;
+        *cBest = j + 1;
+        maxNut = nuts;
+      }
+
+    }
+  }
+}
+}
+
 int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
-             int TimingMode) {
+             int TimingMode, int Computer) {
   int r, c;
   enum conditions cd = PASS;
 
@@ -361,18 +391,38 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
     return playerNum;
   }
 
+  if(Computer == 1){
+    if(playerNum == 1){
+      ComputerPlay(table, Players, &r, &c);
+    }
+    else{
+      printf("Enter your location %s(%s): ", Players[playerNum].name,
+         Players[playerNum].nut);
+    }
+  }
+  else{
   printf("Enter your location %s(%s): ", Players[playerNum].name,
          Players[playerNum].nut);
+  }
 
   // Start Timer
-  if (TimingMode == 1) {
+  if (TimingMode == 1 && (Computer == 0 || playerNum != 1)) {
 
     if (is_playAgain == 0)
       time(&LastTime);
   }
 
   char input[3];
-  scanf("%2s", input);
+
+  if(Computer == 0 || (Computer == 1 && playerNum != 1)){
+    scanf("%2s", input);
+  }
+
+  else{
+    input[0] = 'a';
+    input[1] = '1';
+    
+  }
 
   // Save Game
   if(strcmp(input, "sg") == 0){
@@ -424,16 +474,21 @@ int PlayGame(int table[8][8], Player Players[3], int playerNum, int *is_endGame,
       Show(table, Players, TimingMode);
     }
   }
+  
 
   // Continue play
-  else if (input[0] >= 97 && input[0] <= 104 && input[1] >= 49 &&
-           input[1] <= 56) {
-    // Set row and col
-    int row = (int)input[0] - 96;
-    char col[2] = {input[1], '\0'};
-    r = row;
-    c = atoi(col);
+  else if ((input[0] >= 97 && input[0] <= 104 && input[1] >= 49 &&
+           input[1] <= 56) || (Computer == 1 && playerNum == 1)) {
 
+    if(Computer != 1 || (Computer == 1 && playerNum != 1)){
+      // Set row and col
+      int row = (int)input[0] - 96;
+      char col[2] = {input[1], '\0'};
+      r = row;
+      c = atoi(col);
+    }
+    
+    printf("%d %d\n", r, c);
     condition = IsCorrectMove(table, r, c, playerNum);
 
     if (condition == PASS) {
@@ -488,3 +543,4 @@ void GetPlayerName(Player Players[3]){
   printf("Player tow name(white-O): ");
   scanf("%20s", Players[2].name);
 }
+

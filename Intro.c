@@ -13,7 +13,7 @@ int main(){
 
     // New Game
     if(n == 1){
-        printf("1. Regular game\n2. Time game\n");
+        printf("1. Regular game\n2. Time game\n3. Play With Computer\n");
         printf("Enter number: ");
         
         scanf("%d", &n);
@@ -28,6 +28,11 @@ int main(){
         else if(n == 2){
             system("gcc cJSON.c TimingMode.c -o timingMode.exe -lm");
             system("./timingMode.exe");
+        }
+
+        else if(n == 3){
+            system("gcc cJSON.c ComputerPlay.c -o computerPlay.exe -lm");
+            system("./computerPlay.exe");
         }
 
         //Invalid Input
