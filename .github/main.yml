@@ -1,0 +1,33 @@
+name: Download and compile from Github Action
+
+on:
+  push:
+    tags:
+    - '*.*.*'
+    
+jobs:
+  download-compile:
+    runs-on: ubuntu-latest
+    steps:
+    
+      # Downloads the source code of your repository as a ZIP archive
+      - name: Checkout code
+        uses: actions/download-artifact@main
+        with:
+          name: executable_file
+          path: ./executable_file
+      
+      # Extracts the contents of the downloaded ZIP archive into the current directory
+      - name: Unzip Executable File
+        run: unzip executable_file.zip
+      
+      # Runs the command that compiles the C program
+      - name: Build
+        run: gcc cJSON.c Intro.c -o intro.exe
+      
+      # Uploads the compiled file as an artifact for further use in other jobs or workflows
+      - name: Publish Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: executable_file
+          path: ./intro.exe
